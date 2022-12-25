@@ -1,0 +1,191 @@
+<div class="grid">
+    <div id="child1">
+        <h1>Novo funcionario?</h1>
+        <h2>Bem vindo aos nossos cinemas</h2>
+        <h2>A partir de hoje és um novo Deus do cinema</h2>
+
+    </div>
+
+    <div id="child2">
+        <form enctype="multipart/form-data" id="criar_funcionario" name="criar_funcionario" action="processa_criar_funcionario" method="post" onsubmit="validate_nome() & validate_nif() & validate_cc() & validate_dn() & verifyPassword()">
+            <table>
+                <tr>
+                    <td>Nome</td>
+                    <td><input id="nome_funcionario" type="text" name="nome_funcionario"
+                            placeholder="Nome do Funcionario" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_nome"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>NIF</td>
+                    <td><input id="nif_funcionario" type="number" name="nif_funcionario" placeholder="123456789" pattern="[0-9]{9}" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_nif"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Número do cartão de cidadão</td>
+                    <td><input id="cc_funcionario" type="number" name="cc_funcionario" placeholder="12345678" pattern="[0-9]{8}" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_cc"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Cinema</td>
+                    <td>
+                        <select title="select" name="id_cinema" id="id_cinema" required>
+                            <option value="1">Cinema Olimpo Coimbra</option>
+                            <option value="2">Cinema Olimpo Aveiro</option>
+                            <option value="3">Cinema de Beja</option>
+                            <option value="4">Cinema Olimpo Portimão</option>
+                            <option value="5">Cinema Olimpo Braga</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Data de nascimento</td>
+                    <td><input id="dn_funcionario" title="data de nascimento" name="dn_funcionario" type="date" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_dn"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Password</td>
+                    <td><input id="password_funcionario" type="password" name="password_funcionario" placeholder="Password" required></td>
+                </tr>
+                <tr>
+                    <td>
+                        <td><span class="password_alert" id="valida_pw"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Confirme a Password</td>
+                    <td><input id="password_1" type="password" name="password_1" placeholder="Confirma a Password" required></td>
+                </tr>
+                <tr>
+                    <td><td><span class="password_alert" id="diferent_pw"></span></td></td>
+                </tr>
+
+                <tr>
+                    <td>Insere a tua fotografia</td>
+                    <td><input title="fotografia do funcionario" name="fotografia_funcionario" type="file">
+                    </td>
+                </tr>
+
+                <td colspan="2">
+                    <input type="button" onclick="if (verifyPassword() & validate_nome() & validate_nif() & validate_cc() & validate_dn()) { document.getElementById('criar_funcionario').submit();}" value="Adicionar">
+
+                </td>
+            </table>
+        </form>
+        <p>Já tens conta? <a href="/login">Faz Login</a></p>
+    </div>
+
+</div>
+
+<script>
+    function verifyPassword() {
+
+        var pw = document.getElementById("password_funcionario").value;
+        var pw1 = document.getElementById("password_1").value;
+        if (pw != pw1) {
+            document.getElementById('valida_pw').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Passwords estão diferentes, tente outra vez";
+            return false;
+        } else {
+            if (pw.length < 8) {
+                document.getElementById('valida_pw').innerHTML = " <i class='fa-sharp fa-solid fa-circle-exclamation'> Tente outra vez e tenha pelo menos 8 carateres";
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
+    function validate_nome() {
+       var nome = document.getElementById("nome_funcionario").value;
+
+        if (nome == "") {
+            document.getElementById('valida_nome').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar um nome";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_nif() {
+       var nif = document.getElementById("nif_funcionario").value;
+        if (nif.length != 9) {
+            document.getElementById('valida_nif').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> O NIF deve conter 9 digitos";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_cc() {
+       var cc = document.getElementById("cc_funcionario").value;
+        if (cc.length != 8) {
+            document.getElementById('valida_cc').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> O Número do cartão de cidadão deve conter 8 digitos";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_dn() {
+        var dn = document.getElementById("dn_funcionario").value;
+        if (dn == "") {
+            document.getElementById('valida_dn').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Deves preencher a data de nascimento";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    /*function validate_nome(){
+        dn = documentgetElementById("dn_funcionario")value;
+        nif = documentgetElementById("nif_funcionario")value;
+        cc = documentgetElementById("cc_funcionario")value;
+        nome = documentgetElementById("nome_funcionario")value;
+        
+        if (dn == ""){
+            documentgetElementById('valida_dn')innerHTML="<i class='fa-sharp fa-solid fa-circle-exclamation'></i>Deves preencher a data de nascimento";
+            return false;
+        }
+        if (niflength != 9){
+            documentgetElementById('valida_nif')innerHTML="<i class='fa-sharp fa-solid fa-circle-exclamation'></i>O NIF deve conter 9 digitos";
+            return false;
+        }
+        if (cclength != 8){
+            documentgetElementById('valida_cc')innerHTML="<i class='fa-sharp fa-solid fa-circle-exclamation'></i>O Número do cartão de cidadão deve conter 8 digitos";
+            return false;
+        }
+        if (nome == ""){
+            documentgetElementById('valida_nome')innerHTML="<i class='fa-sharp fa-solid fa-circle-exclamation'></i>Tem que colocar um nome";
+            return false;
+        } else {
+            return true;
+        }
+    }*/
+
+
+</script>

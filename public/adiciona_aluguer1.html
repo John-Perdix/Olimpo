@@ -1,0 +1,168 @@
+<div class="adiciona-filme">
+    <form name ="adicionaFilme" id="adiciona_filme"action="processa_adiciona_filme" method="get">
+        <table class="table-adiciona-filme">
+            <tr>
+                <th>Adiciona um aluguer</th>
+            </tr>
+            <tr>
+                <td><label>Filme</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="titulo_filme" name="titulo_filme" placeholder="Insira o nome do Filme" required></td>
+            </tr>
+
+            <tr>
+                <td>
+                <td> <span class="password_alert" id="valida_titulo"> </span></td>
+                </td>
+            </tr>
+
+            <tr>
+                <td><label>Ano de Lançamento</label></td>
+            </tr>
+            <tr>
+                <td><input type="year" id="ano_filme" name="ano_filme" placeholder="Insira o ano de Lançamento" required></td>
+            </tr>
+
+            <tr>
+                <td>
+                <td> <span class="password_alert" id="valida_ano"> </span></td>
+                </td>
+            </tr>
+
+            <tr>
+                <td><label>Classificação</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="classificacao_filme" name="classificacao_filme" placeholder="Insira a classificação do IMDB" required></td>
+            </tr>
+
+            <tr>
+                <td>
+                <td> <span class="password_alert" id="valida_classificacao"> </span></td>
+                </td>
+            </tr>
+
+            <tr>
+                <td><label>Género do Filme</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="genero_filme" name="genero_filme" placeholder="Insira o Género do Filme" required></td>
+            </tr>
+
+            <tr>
+                <td>
+                <td> <span class="password_alert" id="valida_genero"> </span></td>
+                </td>
+            </tr>
+
+            <tr>
+                <td><label>Poster</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="poster_filme" name="poster_filme" placeholder="Insira o nome da imagem" required></td>
+            </tr>
+            <tr>
+                <td><label>Duração do Filme</label></td>
+            </tr>
+            <tr>
+                <td><input type="number" step=".01" id="duracao_filme" name="duracao_filme" placeholder="Insira a Duração do Filme" required></td>
+            </tr>
+
+            <tr>
+                <td>
+                <td> <span class="password_alert" id="valida_duracao"> </span></td>
+                </td>
+            </tr>
+
+            <tr>
+                <td><label>Prémios</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="premios_filme" name="premios_filme" placeholder="Insira o melhor prémio atribuído" required></td>
+            </tr>
+
+            
+            <tr>
+                <td colspan="2">
+                    <input type="button" onclick="if (validate_titulo() & validate_ano() & validate_classificacao() & validate_genero() & validate_duracao() & validate_premios()) { document.getElementById('adiciona_filme').submit();}" value="Adicionar">
+
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<script>
+    function validate_titulo() {
+       var nome = document.getElementById("titulo_fillme").value;
+
+        if (nome == "") {
+            document.getElementById('valida_titulo').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o título do filme";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_ano() {
+       var nome = document.getElementById("ano_filme").value;
+
+        if (nome == "") {
+            document.getElementById('valida_ano').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o ano do filme";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_classificacao() {
+       var nome = document.getElementById("classificacao_filme").value;
+
+        if (nome == "") {
+            document.getElementById('valida_classificacao').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a classificação do filme";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_genero() {
+       var nome = document.getElementById("genero_filme").value;
+
+        if (nome == "") {
+            document.getElementById('valida_genero').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o género do filme";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_duracao() {
+       var nome = document.getElementById("duracao_filme").value;
+
+        if (nome == "") {
+            document.getElementById('valida_duracao').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a duração do filme";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_premios() {
+       var nome = document.getElementById("premios_filme").value;
+
+        if (nome == "") {
+            document.getElementById('valida_premios').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar os prémios do filme";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+</script>

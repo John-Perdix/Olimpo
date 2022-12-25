@@ -1,0 +1,239 @@
+*{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+body{
+    background-color: #008080;
+    margin: 0;
+}
+
+/*Homepage*/
+.home-consultas-container { 
+    display: flex;
+    margin: auto;
+    justify-content: center;
+    padding: 5em;
+}
+
+.home_consultas {
+    text-decoration: none;
+    background-color: #C0C0C0;
+    color: rgb(48, 48, 48);
+    padding: 25px 125px;
+    margin-right: 50px;
+}
+
+.home_login {
+    text-decoration: none;
+    background-color: #C0C0C0;
+    color: rgb(48, 48, 48);
+    padding: 25px 125px;
+    margin-right: 50px;
+}
+
+/*Head*/
+.logo{
+    width: 5%;
+    align-items: center;
+    vertical-align: middle;
+    background-color: white;
+}
+
+.logo_img{
+    width: 5%;
+    mix-blend-mode: multiply;
+    filter: contrast(1);
+}
+
+.navbar {
+    background-color: #394dcd;
+    position: relative;
+    top: 0;
+    margin: 0;
+    padding: 0.6em;
+}
+
+.navbar ul li{ 
+    display: inline;
+}
+
+.navbar ul li a{
+    color: rgb(48, 48, 48);
+    text-decoration: none;
+    background-color: #C0C0C0;
+    border-style: solid;
+    border-width:3px;
+    border-color:#FFFFFF #808080 #808080 #FFFFFF;
+    padding: 15px 30px;
+    margin-right: 30px;
+    font-weight: 800;
+}
+
+.navbar ul li a:focus {
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+    background-color: #C0C0C0;
+}
+
+.navbar ul li a:hover{
+    /*background-color: #394dcd;*/
+    color: #394dcd;
+}
+
+/*Consultas*/
+.tabela td{
+    border: 1px solid rgb(0, 0, 0);
+    background-color: rgb(48, 48, 48);
+    color: white;
+    padding: 5px 15px;
+    text-align: center;
+}
+
+.tabela table{
+    margin: auto;
+    width: 95%;
+}
+
+.poster_filme{
+    height: 100px;
+}
+
+/*Footer*/
+.footer{
+    background-color: #394dcd;
+    color:white;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    margin: 0;
+}
+
+.footer p{
+    padding-left: 20px;
+}
+
+/*========================login*========================*/
+.grid{
+    background-color: #C0C0C0;
+    max-width: 600px;
+    margin: auto;
+    background-color: #C0C0C0;
+    border-style: solid;
+    border-width:5px;
+    border-color:#FFFFFF #808080 #808080;
+    border-top: none;
+    padding: 2em;
+    margin-top: 100px;
+}
+
+.child1{
+    background-color: #394dcd;
+    height: 20px;
+    padding: 5em;
+}
+
+.child2 {
+    background-color: none;
+    border-bottom: solid 2px #808080;
+    border-left: solid 2px #C0C0C0;
+    padding: 5em;
+}
+
+/*========================Adiciona Filmes=========================*/
+.table-adiciona-filme th {
+    padding-bottom: 2em;
+}
+
+.table-adiciona-filme td {
+    padding-bottom: 1em;
+
+
+}
+
+.table-adiciona-filme input {
+    border-style: solid;
+    border-width:2px;
+    border-color:#0a0a0a white white #0a0a0a;
+
+    height: 2em;
+    width: 15em;
+}
+
+.table-adiciona-filme input[type=button]:focus {
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+    background-color: #C0C0C0;
+}
+
+.table-adiciona-filme input:focus {
+    outline: none;
+}
+
+.adiciona-filme {
+    background-color: #C0C0C0;
+
+    border-style: solid;
+    border-width:3px;
+    border-color:#FFFFFF #808080 #808080 #FFFFFF;
+
+    /*width: fit-content;*/
+    max-width: 15em;
+    padding: 3em;
+    padding-top: 2em;
+    margin: auto;
+    margin-bottom: 5em;;
+}
+
+.password_alert{
+    color:rgb(235, 96, 96);
+    font-size: xx-small;
+    transition: 0.5s;
+}
+
+/*
+=========================================
+==============Distribuidora==============
+=========================================
+*/
+
+.container{
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 300px;
+    flex-direction: column;
+}
+
+.barra{
+    background-color: #394dcd;
+    height: 30px;
+    border: none;
+}
+
+.container-distribuidora{
+    background-color: #C0C0C0;
+    margin-top: 1em;
+    border-style: solid;
+    border-left: solid 3px #FFFFFF;
+    border-bottom: solid 3px #808080;
+    border-top: none;
+    border-left: solid 3px #808080;
+    flex: 1 1 0px;
+}
+
+/*
+=========================================
+=================wrapper=================
+=========================================
+*/
+.wrapper{
+    margin: 2em;
+}
+
+.container-filmes{
+    display: flex;
+}
+
+.container-filmes-item1{
+    padding: 1em;
+}
