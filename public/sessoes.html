@@ -1,0 +1,24 @@
+//consulta de filmes para a o selct filmes
+query3 = "SELECT id_filme, titulo_filme FROM Filmes;";
+//res.send(query);
+pool.query(query3, function (err, result, fields) {
+
+    if (!err) {
+        html += adiciona_aluguer1
+        if (result && result.length > 0) {
+            for (var i = 0; i < result.length; i++) {
+                console.log("os resultados são maiores que 0");
+                html += "<option value='" + result[i].id_filme + "' name='" + result[i].id_filme + "'>" + result[i].titulo_filme + "</option>";
+            }
+        }
+        else {
+            html += "<p>Não há filmes alugados.</p>\n";
+        }
+    }
+    else {
+        html += error_page;
+    }
+    html += "<div class='container-filmes-item2'>";
+    html += "</div>";
+    html += "</div>";
+});
