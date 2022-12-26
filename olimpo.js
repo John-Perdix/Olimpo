@@ -213,7 +213,6 @@ servidor.get("/alugueres", function (req, res) {
         sem_distribuidoras = fs.readFileSync("public/sem_distribuidoras.html", "utf-8");
         adiciona_aluguer1 = fs.readFileSync("public/adiciona_aluguer1.html", "utf-8");
         adiciona_aluguer2 = fs.readFileSync("public/adiciona_aluguer2.html", "utf-8");
-        adiciona_aluguer3 = fs.readFileSync("public/adiciona_aluguer3.html", "utf-8");
         error_page = fs.readFileSync("public/error.html", "utf-8");
     }
     catch (error) {
@@ -265,14 +264,9 @@ servidor.get("/alugueres", function (req, res) {
                 html += "<tr><th>Titulo do Filme</th><th>Id do filme</th><th>Id do aluguer</th><th>Data do inicio do aluguer</th><th>Data do fim do aluguer</th><th>Status</th></tr>\n";
                 for (var i = 0; i < result.length; i++) {
                     console.log("os resultados são maiores que 0");
-                    html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].id_filme + "</td><td>" + result[i].id_aluguer + "</td><td>" + result[i].data_inicio_aluguer + "</td><td>" + result[i].data_fim_aluguer + "></td><td><i class='fa-solid fa-circle-check'></i></td></tr>\n";
+                    html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].id_filme + "</td><td>" + result[i].id_aluguer + "</td><td>" + result[i].data_inicio_aluguer.getDate() + "/" + result[i].data_inicio_aluguer.getMonth() + "/" + result[i].data_inicio_aluguer.getFullYear() + "</td><td>" + result[i].data_fim_aluguer.getDate() + "/" + result[i].data_fim_aluguer.getMonth() + "/" + result[i].data_fim_aluguer.getFullYear()
+                     + "></td><td><i class='fa-solid fa-circle-check ativo'></i></td></tr>\n";
                 }
-                html += "</table>\n";
-                html += "</div>";
-                html += "<div class='container-filmes-item2'>";
-                html += "</div>";
-                html += "</div>";
-                html += "</div>\n";
             }
             else {
                 html += "<p>Não há filmes alugados.</p>\n";
@@ -281,10 +275,36 @@ servidor.get("/alugueres", function (req, res) {
         else {
             html += error_page;
         }
-        html += "<div class='container-filmes-item2'>";
-        html += "</div>";
-        html += "</div>";
     });
+
+        //consulta alugueres que NÃO estão neste momento ativos
+        var query2 = "SELECT id_aluguer, id_filme, titulo_filme, nome_distribuidora, data_inicio_aluguer, data_fim_aluguer  FROM Alugueres INNER JOIN Distribuidoras using(id_distribuidora) INNER JOIN Filmes using(id_filme) WHERE NOW() NOT BETWEEN data_inicio_aluguer AND data_fim_aluguer;";
+        //res.send(query);
+        pool.query(query2, function (err, result, fields) {
+            if (!err) {
+                if (result && result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        console.log("os resultados são maiores que 0");
+                        html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].id_filme + "</td><td>" + result[i].id_aluguer + "</td><td>" + result[i].data_inicio_aluguer.getDate() + "/" + result[i].data_inicio_aluguer.getMonth() + "/" + result[i].data_inicio_aluguer.getFullYear() + "</td><td>" + result[i].data_fim_aluguer.getDate() + "/" + result[i].data_fim_aluguer.getMonth() + "/" + result[i].data_fim_aluguer.getFullYear() + "</td><td><i class='fa-solid fa-circle-xmark desativo'></i></td></tr>\n";
+                    }
+                    html += "</table>\n";
+                    html += "</div>";
+                    html += "<div class='container-filmes-item2'>";
+                    html += "</div>";
+                    html += "</div>";
+                    html += "</div>\n";
+                }
+                else {
+                    html += "<p>Não há filmes alugados.</p>\n";
+                }
+            }
+            else {
+                html += error_page;
+            }
+            html += "<div class='container-filmes-item2'>";
+            html += "</div>";
+            html += "</div>";
+        });
 
     //consulta de filmes para a o select filmes
     var query3 = "SELECT id_filme, titulo_filme FROM Filmes;";
@@ -322,7 +342,6 @@ servidor.get("/alugueres", function (req, res) {
                 }
                 html+= "</select></td>";
                 html +="<tr><td><std> <span class='password_alert' id='valida_distribuidora'> </span></td></td></tr>";
-                html += adiciona_aluguer2;
             }
             else {
                 html += "<p>Não há Distribuidoras alugados.</p>\n";
@@ -331,6 +350,7 @@ servidor.get("/alugueres", function (req, res) {
         else {
             html += error_page;
         }
+        html += adiciona_aluguer2;
         html += "<div class='container-filmes-item2'>";
         html += "</div>";
         html += "</div>";
@@ -339,6 +359,49 @@ servidor.get("/alugueres", function (req, res) {
         res.send(html);
     });
 
+});
+
+/*________________________________Processa Adiciona alugueres________________________________*/
+servidor.post("/processa_adiciona_aluguer", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        error_page = fs.readFileSync("public/error.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html)");
+    }
+    console.log(req.body);
+
+    if (req.body.id_filme && req.body.id_distribuidora && req.body.data_inicio_aluguer && req.body.data_fim_aluguer) {
+        var query = "INSERT INTO Alugueres VALUES (null, '" + req.body.id_filme + "', '" + req.body.id_distribuidora + "', '" + req.body.data_inicio_aluguer + "', '" + req.body.data_fim_aluguer + "');";
+        //var query1 = "SELECT titulo_filme FROM Filmes INNER JOIN Alugueres USING(id_filme) WHERE id_aluguer =  LAST INSERTED id_alugueres;";
+
+            pool.query(query, function (err, result, fields) {
+                var html = "";
+                html += head;
+                html += "<h2>Adicionar um aluguer</h2>";
+                console.log(err);
+                console.log(query);
+
+                if (!err) {
+                    if (result) {
+                        //html += "<p>O aluguer do Filme '" + req.body.titulo_filme + "'foi inserido com sucesso</p>";
+                        html += "sucesso"; 
+
+                    }
+                    else {
+                        //html += "<p>Não foi possível inserir o aluguer do Filme '" + req.body.titulo_filme + "'</p>";
+                        html += "não dá burro";
+                    }
+                }
+                else {
+                    html += error_page;
+                }
+                html += footer;
+                res.send(html);
+            });
+    }
 });
 
 /*________________________________Adiciona Filmes________________________________*/
@@ -522,6 +585,73 @@ servidor.post("/processa_adiciona_cliente", urlEncodedParser, function (req, res
 
 
 
+/*________________________________Adiciona Atores________________________________*/
+servidor.get("/adiciona_ator", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        adiciona_ator = fs.readFileSync("public/adiciona_ator.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html");
+    }
+
+    var html = "";
+    html += head;
+    html += adiciona_ator;
+    
+    html += footer;
+    res.send(html);
+});
+
+/*________________________________Processa Adiciona Ator________________________________*/
+servidor.post("/processa_adiciona_ator", urlEncodedParser, function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        content = fs.readFileSync("public/home.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    //if (req.session.id_funcionario) {
+        if (req.body.nome_ator && req.body.dn_ator && req.body.premios_ator) {
+            var query = "INSERT INTO Atores VALUES (null, '" + req.body.nome_ator + "', '" + req.body.dn_ator + "', '" + req.body.premios_ator + "', null);";
+            //res.send(query);
+            if (!req.files) {
+                pool.query(query, function (err, result, fields) {
+                    var html = "";
+                    html += head;
+                    html += "<h2>Novo Ator</h2>\n";
+                    if (!err) {
+                        if (result) {
+                            html += "<p>" + req.body.nome_ator + " registado na base de dados" + "</p>\n";
+                        }
+                        else {
+                            html += "<p>Não foi possivel registar '" + req.body.nome_ator + "' na base de dados</p>\n";
+                        }
+                    }
+                    else {
+                        html += "<p>Erro ao executar pedido ao servidor</p>\n";
+                        console.log(err);
+                    }
+                    html += footer;
+                    res.send(html);
+                });
+            }
+            
+        }
+        else {
+            var html = "";
+            html += head;
+            html += "<h2>Erro ao Adicionar Ator</h2>\n";
+            html += "<p>Dados incompletos, tenta de novo</p>\n";
+            console.log(req.body);
+            html += footer;
+            res.send(html);
+        }
+    });
 
 
 

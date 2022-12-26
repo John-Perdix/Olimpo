@@ -1,0 +1,93 @@
+<div class="grid">
+    <div id="child1">
+        <h1>Adiciona Ator</h1>
+
+    </div>
+
+    <div id="child2">
+        <form enctype="multipart/form-data" id="adiciona_ator" name="adiciona_ator" action="processa_adiciona_ator" method="post" onsubmit="validate_nome() & validate_dn() & validate_premio()">
+            <table>
+                <tr>
+                    <td>Nome</td>
+                    <td><input id="nome_ator" type="text" name="nome_ator"
+                            placeholder="Nome do Ator" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_nome"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Data de nascimento</td>
+                    <td><input id="dn_ator" title="data de nascimento" name="dn_ator" type="date" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_dn"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Melhor Prémio</td>
+                    <td><input id="premios_ator" type="text" name="premios_ator" placeholder="Óscar de Melhor ______ 2020" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_premios"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Insere a Fotografia</td>
+                    <td><input title="fotografia do ator" name="fotografia_ator" type="text">
+                    </td>
+                </tr>
+
+                <td colspan="2">
+                    <input type="button" onclick="if (validate_nome() & validate_dn() & validate_premio()) { document.getElementById('adiciona_ator').submit();}" value="Adicionar">
+
+                </td>
+            </table>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    function validate_nome() {
+       var nome = document.getElementById("nome_ator").value;
+
+        if (nome == "") {
+            document.getElementById('valida_nome').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar um nome";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_dn() {
+        var dn = document.getElementById("dn_ator").value;
+        if (dn == "") {
+            document.getElementById('valida_dn').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Deves preencher a data de nascimento";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_premio() {
+        var dn = document.getElementById("premios_ator").value;
+        if (dn == "") {
+            document.getElementById('valida_premios').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Deves colocar um prémio";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+
+</script>

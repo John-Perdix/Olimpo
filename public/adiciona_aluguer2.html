@@ -1,7 +1,12 @@
+
 </tr>
 <tr>
     <td>
-    <td> <span class="password_alert" id="valida_titulo"> </span></td>
+    <td> <span class="password_alert" id="valida_id_filme"> </span></td>
+    </td>
+
+    <td>
+    <td> <span class="password_alert" id="valida_distribuidora"></span></td>
     </td>
 </tr>
 
@@ -10,99 +15,82 @@
     <td><label>Data fim</label></td>
 </tr>
 <tr>
-    <td><input type="date" id="inicio_aluguer_filme" name="inicio_aluguer_filme" placeholder="Date.now()" required></td>
+    <td><input type="date" id="data_inicio_aluguer" name="data_inicio_aluguer" placeholder="Date.now()" required></td>
 
-    <td><input type="date" id="fim_aluguer_filme" name="fim_aluguer_filme" placeholder="Date.now()" required></td>
+
+    <td><input type="date" id="data_fim_aluguer" name="data_fim_aluguer" placeholder="Date.now()" required></td>
 
     <tr>
         <td>
-        <td> <span class="password_alert" id="valida_ano"> </span></td>
+        <td> <span class="password_alert" id="valida_inicio_aluguer"> </span></td>
         </td>
-    </tr>
     
-    <tr>
         <td>
-        <td> <span class="password_alert" id="valida_classificacao"> </span></td>
+        <td> <span class="password_alert" id="valida_fim_aluguer"></span></td>
         </td>
     </tr>
-    </table>
-    </form>
-    </div>
+
+    
+    <td colspan="2">
+        <input type="button"
+            onclick="document.getElementById('adiciona_aluguer').submit();"
+            value="Adicionar Aluguer">
+
+    </td>
+
+</table>
+</form>
+</div>
 
 
-    <!--SCRIPT DE VALIDAÇÃO-->
-    <script>
-    function validate_titulo() {
-    var nome = document.getElementById("titulo_fillme").value;
-    
-    if (nome == "") {
-    document.getElementById('valida_titulo').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o título do filme";
-    return false;
-    }
-    else {
-    return true;
-    }
-    }
-    
-    function validate_ano() {
-    var nome = document.getElementById("ano_filme").value;
-    
-    if (nome == "") {
-    document.getElementById('valida_ano').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o ano do filme";
-    return false;
-    }
-    else {
-    return true;
-    }
-    }
-    
-    function validate_classificacao() {
-    var nome = document.getElementById("classificacao_filme").value;
-    
-    if (nome == "") {
-    document.getElementById('valida_classificacao').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a classificação do filme";
-    return false;
-    }
-    else {
-    return true;
-    }
-    }
-    
-    function validate_genero() {
-    var nome = document.getElementById("genero_filme").value;
-    
-    if (nome == "") {
-    document.getElementById('valida_genero').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o género do filme";
-    return false;
-    }
-    else {
-    return true;
-    }
-    }
-    
-    function validate_duracao() {
-    var nome = document.getElementById("duracao_filme").value;
-    
-    if (nome == "") {
-    document.getElementById('valida_duracao').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a duração do filme";
-    return false;
-    }
-    else {
-    return true;
-    }
-    }
-    
-    function validate_premios() {
-    var nome = document.getElementById("premios_filme").value;
-    
-    if (nome == "") {
-    document.getElementById('valida_premios').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar os prémios do filme";
-    return false;
-    }
-    else {
-    return true;
-    }
-    }
-    </script>
+<!--SCRIPT DE VALIDAÇÃO-->
+<!-- 
+<script>
+    function validate_filme() {
+        var nome = document.getElementById("id_filme").value;
 
- 
+        if (nome == "") {
+            document.getElementById('valida_id_filme').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o título do filme";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_distribuidora() {
+        var nome = document.getElementById("id_distribuidora").value;
+
+        if (nome == "") {
+            document.getElementById('valida_distribuidora').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o nome da Distribuidora";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_data_inicio_aluguer() {
+        var nome = document.getElementById("data_inicio_aluguer").value;
+
+        if (nome == "") {
+            document.getElementById('valida_inicio_aluguer').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a data de início do Aluguer";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_data_fim_aluguer() {
+        var nome = document.getElementById("data_fim_aluguer").value;
+
+        if (nome == "") {
+            document.getElementById('valida_fim_aluguer').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a data de fim do Aluguer";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+</script>-->
