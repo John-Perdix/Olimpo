@@ -1,0 +1,129 @@
+<div class="grid">
+    <div id="child1">
+        <h1>Adiciona Cliente</h1>
+
+    </div>
+
+    <div id="child2">
+        <form enctype="multipart/form-data" id="adiciona_cliente" name="adiciona_cliente" action="processa_adiciona_cliente" method="post" onsubmit="validate_nome() & validate_nif() & validate_telefone() & validate_dn() & validate_email()">
+            <table>
+                <tr>
+                    <td>Nome</td>
+                    <td><input id="nome_cliente" type="text" name="nome_cliente"
+                            placeholder="Nome do Cliente" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_nome"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Data de nascimento</td>
+                    <td><input id="dn_cliente" title="data de nascimento" name="dn_cliente" type="date" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_dn"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Telefone</td>
+                    <td><input id="telefone_cliente" type="number" name="telefone_cliente" placeholder="123456789" pattern="[0-9]{9}" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_telefone"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Email</td>
+                    <td><input id="email_cliente" type="email" name="email_cliente" placeholder="nomecliente@email.com" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_email"> </span></td>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>NIF</td>
+                    <td><input id="nif_cliente" type="number" name="nif_cliente" placeholder="987654321" pattern="[0-9]{9}" required></td>
+                </tr>
+                <tr>
+                    <td>
+                    <td><span class="password_alert" id="valida_nif"> </span></td>
+                    </td>
+                </tr>
+
+                <td colspan="2">
+                    <input type="button" onclick="if (validate_nome() & validate_nif() & validate_telefone() & validate_dn() & validate_email()) { document.getElementById('adiciona_cliente').submit();}" value="Adicionar">
+
+                </td>
+            </table>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    function validate_nome() {
+       var nome = document.getElementById("nome_cliente").value;
+
+        if (nome == "") {
+            document.getElementById('valida_nome').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar um nome";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_nif() {
+       var nif = document.getElementById("nif_cliente").value;
+        if (nif.length != 9) {
+            document.getElementById('valida_nif').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> O NIF deve conter 9 digitos";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_telefone() {
+       var cc = document.getElementById("telefone_cliente").value;
+        if (cc.length != 9) {
+            document.getElementById('valida_telefone').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar um número de telefone";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_dn() {
+        var dn = document.getElementById("dn_cliente").value;
+        if (dn == "") {
+            document.getElementById('valida_dn').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Deves preencher a data de nascimento";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_email() {
+        var dn = document.getElementById("email_cliente").value;
+        if (dn == "") {
+            document.getElementById('valida_email').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Deves colocar um email";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+
+</script>

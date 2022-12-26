@@ -82,9 +82,11 @@ body{
 
 /*Consultas*/
 .tabela td{
-    border: 1px solid rgb(0, 0, 0);
-    background-color: rgb(48, 48, 48);
-    color: white;
+    border-style: solid;
+    border-width:3px;
+    border-color:#FFFFFF #808080 #808080 #FFFFFF;
+    background-color: #C0C0C0;
+    color: rgb(48, 48, 48);
     padding: 5px 15px;
     text-align: center;
 }
@@ -178,11 +180,11 @@ body{
     border-color:#FFFFFF #808080 #808080 #FFFFFF;
 
     /*width: fit-content;*/
-    max-width: 15em;
+    max-width: max-content;
     padding: 3em;
     padding-top: 2em;
     margin: auto;
-    margin-bottom: 5em;;
+    margin-bottom: 5em;
 }
 
 .password_alert{
