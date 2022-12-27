@@ -21,6 +21,8 @@ const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
 const { homedir } = require('os');
 const servidor = express();
+//costante para definir o array com os meses do ano
+const month = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
 // const bootstrap = require('bootstrap');
 var porto = 9090;
 
@@ -116,6 +118,15 @@ servidor.get("/", function (req, res) {
     res.send(html);
 });
 
+
+
+
+
+
+
+
+
+
 /*________________________________Login________________________________*/
 servidor.get("/login", function (req, res) {
     try {
@@ -134,6 +145,144 @@ servidor.get("/login", function (req, res) {
     html += footer;
     res.send(html);
 });
+
+/*________________________________Processa Login________________________________*/
+servidor.get("/processa_login_funcionario", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head_timer.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    if (req.query.id_funcionario && req.query.password_funcionario) {
+        var query = "SELECT * FROM Funcionarios WHERE id_funcionario = '" + req.query.id_funcionario + "' AND password_funcionario = SHA('" + req.query.password_funcionario + "');";
+        //res.send(query);
+        pool.query(query, function (err, result, fields) {
+            var html = "";
+            html += head;
+            html += "<h2>Login Funcionário</h2>\n";
+            if (!err) {
+                if (result && result.length > 0) {
+                    html += "<p>O funcionario " + result[0].nome_funcionario + " foi autenticado com sucesso</p>\n";
+                    req.session.id_funcionario = result[0].id_funcionario;
+                    console.log(req.query.nome_funcionario);
+                    console.log(result);
+                    console.log("A sessão é: " + req.session.nome_funcionario);
+                }
+                else {
+                    html += "<p>Não foi possível autenticar o funcionário " + req.query.id_funcionario + "</p>\n";
+                    //html += "<a href='login'>Volta para trás</a>";
+                }
+            }
+            else {
+                html += "<p>erro ao executar pedido ao servidor</p>\n";
+            }
+            html += footer;
+            res.send(html);
+        });
+    }
+    else {
+        var html = "";
+        html += head;
+        html += "<h2>Login Funcionário</h2>\n";
+        html += "<p>dados de autenticação do funcionário não definidos</p>\n";
+        html += footer;
+        res.send(html);
+    }
+});
+
+
+
+
+// Perfil Funcionário
+servidor.get("/perfil_funcionario", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html");
+    }
+    console.log(req.session.id_funcionario);
+
+    var html = "";
+    html += head;
+
+    if (req.session.id_funcionario) {
+
+        var query = "SELECT id_funcionario, nome_funcionario, nif_funcionario, cc_funcionario, dn_funcionario, data_entrada_funcionario, fotografia_funcionario FROM Funcionarios INNER JOIN Cinemas USING(id_cinema) WHERE id_funcionario = '" + req.session.id_funcionario + "';";
+        //res.send(query);
+        pool.query(query, function (err, result, fields) {
+
+
+            html += "<h2>Perfil</h2>\n";
+            if (!err) {
+
+                if (result && result.length > 0) {
+
+                    html += "<div class='container-filmes'>";
+                    for (var i = 0; i < result.length; i++) {
+                        //definição de variaveis para alterar o nome do mês nas datas
+                        const entrada = result[i].data_entrada_funcionario;
+                        const dn = result[i].dn_funcionario;
+                        let mes_entrada = month[entrada.getMonth()];
+                        let mes_nascimento = month[dn.getMonth()];
+
+                        html += "<div class='container-filmes-item1'>";
+                        html += "<img class='fotografia_funcionario' src='recursos/fotografias_funcionarios/" + result[i].fotografia_funcionario + "' alt='fotografia do funcionario'>";
+                        html += "</div>";
+                        
+                        html += "<div class='container-filmes-item1'>";
+                        html += "<table class='tabela tabela_perfil'>\n";
+                        html += "<tr><th>ID</th> <td>" + result[i].id_funcionario + "</td></tr>\n";
+                        html += "<tr><th>Nome</th> <td>" + result[i].nome_funcionario + "</td></tr>\n";
+                        html += "<tr><th>NIF</th> <td>" + result[i].nif_funcionario + "</td></tr>\n";
+                        html += "<tr><th>CC</th> <td>" + result[i].cc_funcionario + "</td></tr>\n";
+
+                        //data_nascimento
+                        html += "<tr><th>Data de Nascimento</th> <td>" + result[i].dn_funcionario.getDate() + "-" + mes_nascimento + "-" + result[i].dn_funcionario.getFullYear() + "</td></tr>\n";
+
+                        //data de entrada
+                        html += "<tr><th>Data de Entrada</th> <td>" + result[i].data_entrada_funcionario.getDate() + "-" + mes_entrada + "-" + result[i].data_entrada_funcionario.getFullYear() + "</td></tr>\n";
+                        html += "</table>\n";
+                        html += "</div>";
+
+                        
+
+                        
+                        console.log(result[i].nome_funcionario);
+                    }
+                    html += "</div>";
+                }
+                else {
+                    html += "<p>Não há Funcionários para ninguém.</p>\n";
+                }
+            }
+            else {
+                html += error;
+            }
+
+
+            html += footer;
+            res.send(html);
+        });
+    }
+    else {
+        var html = "";
+        html += head;
+        html += "<h2>Perfil</h2>\n";
+        html += "<p>Não tem sessão iniciada</p>\n";
+        html += "<p>Faça <a href='/login'>Login</p>\n";
+        html += footer;
+        res.send(html);
+    }
+});
+
+
+
+
 
 /*________________________________Consulta de Filmes________________________________*/
 servidor.get("/filmes", function (req, res) {
@@ -164,7 +313,7 @@ servidor.get("/filmes", function (req, res) {
                 html += "<tr><th>Titulo do Filme</th><th>Diretor</th><th>Ano</th><th>Duração</th><th>Classificação</th><th>Premio</th><th>Poster</th></tr>\n";
                 for (var i = 0; i < result.length; i++) {
                     console.log("os resultados são maiores que 0");
-                    html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].nome_diretor + "</td><td>" + result[i].ano_filme + "</td><td>" + result[i].runtime_filme + " min.</td><td>" + result[i].classificacao_filme + "</td><td>" + result[i].premios_filme + "</td><td><img class='poster_filme' src='recursos/" + result[i].poster_filme + "' alt='Poster do filme'></td</tr>\n";
+                    html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].nome_diretor + "</td><td>" + result[i].ano_filme + "</td><td>" + result[i].runtime_filme + " min.</td><td>" + result[i].classificacao_filme + "</td><td>" + result[i].premios_filme + "</td><td><img class='poster_filme' src='recursos/" + result[i].poster_filme + "' alt='Poster do filme'></td></tr>\n";
                 }
                 html += "</table>\n";
                 html += "</div>"
@@ -225,6 +374,8 @@ servidor.get("/alugueres", function (req, res) {
     var query1 = "SELECT * FROM Distribuidoras;\n";
 
     //res.send(query);
+
+    //consulta distribuidoras
     pool.query(query1, function (err, result, fields) {
         if (!err) {
             if (result && result.length > 0) {
@@ -233,7 +384,6 @@ servidor.get("/alugueres", function (req, res) {
                 html += "<div class='container'>\n";
                 html += "<h2>Distribuidoras</h2>";
                 for (var i = 0; i < result.length; i++) {
-                    console.log("os resultados são maiores que 0");
                     html += "<div class='container-distribuidora'><div class='barra'></div><table><tr><td>" + result[i].id_distribuidora + "</td></tr><tr><td>" + result[i].nome_distribuidora + "</td></tr><tr><td>" + result[i].morada_distribuidora + "</td></tr><tr><td>" + result[i].email_distribuidora + "</td></tr><tr><td>" + result[i].telefone_distribuidora + "</td></tr></table></div>\n";
                 }
                 html += "</div>\n";
@@ -259,14 +409,21 @@ servidor.get("/alugueres", function (req, res) {
             html += "<div class='container-filmes'>";
             html += "<div class='container-filmes-item1'>";
             html += "<h2>Alugueres disponiveis</h2>\n";
+
+
             if (result && result.length > 0) {
                 html += "<table class='tabela'>\n";
                 html += "<tr><th>Titulo do Filme</th><th>Id do filme</th><th>Id do aluguer</th><th>Data do inicio do aluguer</th><th>Data do fim do aluguer</th><th>Status</th></tr>\n";
                 for (var i = 0; i < result.length; i++) {
-                    console.log("os resultados são maiores que 0");
-                    html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].id_filme + "</td><td>" + result[i].id_aluguer + "</td><td>" + result[i].data_inicio_aluguer.getDate() + "/" + result[i].data_inicio_aluguer.getMonth() + "/" + result[i].data_inicio_aluguer.getFullYear() + "</td><td>" + result[i].data_fim_aluguer.getDate() + "/" + result[i].data_fim_aluguer.getMonth() + "/" + result[i].data_fim_aluguer.getFullYear()
-                     + "></td><td><i class='fa-solid fa-circle-check ativo'></i></td></tr>\n";
+                    const ini = result[i].data_inicio_aluguer;
+                    const f = result[i].data_fim_aluguer;
+                    let inicio = month[ini.getMonth()];
+                    let fim = month[f.getMonth()];
+
+                    //Definição da data com nome do mês
+                    html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].id_filme + "</td><td>" + result[i].id_aluguer + "</td><td>" + result[i].data_inicio_aluguer.getDate() + "/" + inicio + "/" + result[i].data_inicio_aluguer.getFullYear() + "</td><td>" + result[i].data_fim_aluguer.getDate() + "/" + fim + "/" + result[i].data_fim_aluguer.getFullYear()+ "</td><td><i class='fa-solid fa-circle-check ativo'></i></td></tr>\n";
                 }
+                html += "</table>"
             }
             else {
                 html += "<p>Não há filmes alugados.</p>\n";
@@ -284,7 +441,6 @@ servidor.get("/alugueres", function (req, res) {
             if (!err) {
                 if (result && result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
-                        console.log("os resultados são maiores que 0");
                         html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].id_filme + "</td><td>" + result[i].id_aluguer + "</td><td>" + result[i].data_inicio_aluguer.getDate() + "/" + result[i].data_inicio_aluguer.getMonth() + "/" + result[i].data_inicio_aluguer.getFullYear() + "</td><td>" + result[i].data_fim_aluguer.getDate() + "/" + result[i].data_fim_aluguer.getMonth() + "/" + result[i].data_fim_aluguer.getFullYear() + "</td><td><i class='fa-solid fa-circle-xmark desativo'></i></td></tr>\n";
                     }
                     html += "</table>\n";
@@ -314,7 +470,6 @@ servidor.get("/alugueres", function (req, res) {
             html += adiciona_aluguer1;
             if (result && result.length > 0) {
                 for (var i = 0; i < result.length; i++) {
-                    console.log("os resultados são maiores que 0");
                     html += "<option value='" + result[i].id_filme + "' name='" + result[i].id_filme + "'>" + result[i].titulo_filme + "</option>";
                 }
             }
@@ -358,7 +513,6 @@ servidor.get("/alugueres", function (req, res) {
         html += footer;
         res.send(html);
     });
-
 });
 
 /*________________________________Processa Adiciona alugueres________________________________*/
@@ -374,25 +528,35 @@ servidor.post("/processa_adiciona_aluguer", function (req, res) {
     console.log(req.body);
 
     if (req.body.id_filme && req.body.id_distribuidora && req.body.data_inicio_aluguer && req.body.data_fim_aluguer) {
-        var query = "INSERT INTO Alugueres VALUES (null, '" + req.body.id_filme + "', '" + req.body.id_distribuidora + "', '" + req.body.data_inicio_aluguer + "', '" + req.body.data_fim_aluguer + "');";
-        //var query1 = "SELECT titulo_filme FROM Filmes INNER JOIN Alugueres USING(id_filme) WHERE id_aluguer =  LAST INSERTED id_alugueres;";
+        var query = "INSERT INTO Alugueres VALUES (null, '" + req.body.id_filme + "', '" + req.body.id_distribuidora + "', '" + req.body.data_inicio_aluguer + "', '" + req.body.data_fim_aluguer + "');\n";
+        //query += "SELECT titulo_filme FROM Filmes INNER JOIN Alugueres USING(id_filme) WHERE id_aluguer =  LAST INSERTED id_alugueres;";
 
             pool.query(query, function (err, result, fields) {
                 var html = "";
                 html += head;
                 html += "<h2>Adicionar um aluguer</h2>";
                 console.log(err);
-                console.log(query);
+                console.log(result);
 
                 if (!err) {
                     if (result) {
-                        //html += "<p>O aluguer do Filme '" + req.body.titulo_filme + "'foi inserido com sucesso</p>";
-                        html += "sucesso"; 
+                        /*SERÁ QUE ISTO FUNCIONA? isto fica undefined
+                        query1 = "SELECT titulo_filme FROM Filmes INNER JOIN Alugueres USING(id_filme) WHERE id_aluguer =  LAST INSERTED id_alugueres;";
+                        pool.query(query1, function (err, result, fields){
+                            if(!err){
+                                if (result){
+                                html += "<p>O aluguer do Filme '" + req.body.titulo_filme + "'foi inserido com sucesso</p>";
+                            }else{
+                                html += "<p>O filme foi adicionado com sucesso</p>";
+                            }
+                        }
+                    });*/
+                        html += "<p>O filme foi adicionado com sucesso</p>"; 
 
                     }
                     else {
-                        //html += "<p>Não foi possível inserir o aluguer do Filme '" + req.body.titulo_filme + "'</p>";
-                        html += "não dá burro";
+                        html += "<p>Não foi possível inserir o aluguer do Filme '" + req.body.titulo_filme + "'</p>";
+                        //html += "não dá burro";
                     }
                 }
                 else {
@@ -581,10 +745,6 @@ servidor.post("/processa_adiciona_cliente", urlEncodedParser, function (req, res
         }
     });
 
-
-
-
-
 /*________________________________Adiciona Atores________________________________*/
 servidor.get("/adiciona_ator", function (req, res) {
     try {
@@ -654,12 +814,6 @@ servidor.post("/processa_adiciona_ator", urlEncodedParser, function (req, res) {
     });
 
 
-
-
-
-
-
-
 //DUVIDAS
 /*
 COMO É QUE FAZEMOS O QUERY QUANDO SÃO VARIAS CONSULTAS, OU VARIAS INSERTS E CENAS
@@ -686,52 +840,6 @@ Solução para não utilizar o memso assento na mesma sessão
 select para os bilhetes que não foram vendidos para a seesão
 No javascript não permitir 
  
- 
-*///===================================================================
-/* ===========================processa login===========================
-   ====================================================================
-/// página que realiza a autenticação (login)
-servidor.get("/processa_login_funcionario", function (req, res) {
-    try {
-        head = fs.readFileSync("public/head_timer.html", "utf-8");
-        footer = fs.readFileSync("public/footer.html", "utf-8");
-    }
-    catch (error) {
-        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
-    
- 
-    if (req.query.id_funcionario && req.query.password_funcionario) {
-        var query = "SELECT id_funcionario FROM Funcionarios WHERE id_funcionario = '" + req.query.id_funcionario + "' AND password_funcionario = SHA('" + req.query.password_funcionario + "');";
-        //res.send(query);
-        pool.query(query, function (err, result, fields) {
-            var html = "";
-            html += head;
-            html += "<h2>Login funcionário</h2>\n";
-            if (!err) {
-                if (result && result.length > 0) {
-                    html += "<p>O funcionario '" + req.query.id_funcionario + "' foi autenticado com sucesso</p>\n";
-                    req.session.id_funcionario = result[0].id_funcionario;
-                }
-                else {
-                    html += "<p>não foi possível autenticar o funcionário " + req.query.id_funcionario + "</p>\n";
-                }
-            }
-            else {
-                html += "<p>erro ao executar pedido ao servidor</p>\n";
-            }
-            html += footer;
-            res.send(html);
-        });
-    }
-    else {
-        var html = "";
-        html += head;
-        html += "<h2>login funcionário</h2>\n";
-        html += "<p>dados de autenticação do funcionário não definidos</p>\n";
-        html += footer;
-        res.send(html);
-    }
-});*/
 
 /*________________________________Consulta de Funcionários________________________________*/
 servidor.get("/funcionarios", function (req, res) {
@@ -813,7 +921,6 @@ servidor.post("/processa_criar_funcionario", urlEncodedParser, function (req, re
         console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
     }
 
-    //if (req.session.id_funcionario) {
     if (req.body.nome_funcionario && req.body.nif_funcionario && req.body.cc_funcionario && req.body.dn_funcionario && req.body.password_funcionario && req.body.id_cinema && req.files.fotografia_funcionario) {
         var query = "INSERT INTO Funcionarios VALUES (null, '" + req.body.id_cinema + "', '" + req.body.nome_funcionario + "', '" + req.body.nif_funcionario + "', '" + req.body.cc_funcionario + "', '" + req.body.dn_funcionario + "', NOW(),'" + sha1(req.body.password_funcionario) + "', 'fotografia');";
         //res.send(query);
@@ -845,37 +952,26 @@ servidor.post("/processa_criar_funcionario", urlEncodedParser, function (req, re
         //depois no req.files fazer alter do atributo e passar o fotografia_funcionario com o nome do ficheiro
         else if (req.files.fotografia_funcionario) {
             //novo query para fazer o update do atributo
-            console.log("Estamos no " + req.files);
             console.log("Estamos no req.files");
-            query += "UPDATE Funcionarios SET fotografia_funcionario = " + req.files.fotografia_funcionario + ";";
-            //query do ficheiro do stor
-            /*query += "INSERT INTO Capas VALUES (null, '" + req.files.nome_imagem_capa.name + "', '" + req.files.nome_imagem_capa.mimetype + "', '0', '0', '', LAST_INSERT_ID());";*/
+            query += "UPDATE Funcionarios SET fotografia_funcionario = '" + req.files.fotografia_funcionario.name + "' WHERE id_funcionario = LAST_INSERT_ID();";
             pool.query(query, function (err, result, fields) {
                 var html = "";
                 html += head;
                 html += "<h2>Regista um funcionário</h2>\n";
                 if (!err) {
-                    if (result[0] && result[0].affectedRows > 0) {
+                    if (result) {
                         html += "<p>O funcionário'" + req.body.nome_funcionario + "' foi inserido com sucesso</p>\n";
                     }
                     else {
                         html += "<p>Não foi possivel inserir o funcionário '" + req.body.nome_funcionario + "'</p>\n";
-                        html += "<p>Não foi possivel inserir a fotografia de'" + req.body.nome_funcionario + "'</p>\n";
                     }
-                    if (result[1] && result[1].affectedRows > 0) {
-                        html += "<p>A fotografia de'" + req.body.nome_funcionario + "' foi inserida com sucesso</p>\n";
-                    }
-                    else {
-                        html += "<p>Não foi possivel inserir a  fotografia de '" + req.body.nome_funcionario + "'</p>\n";
-                    }
-                    req.files.fotografia_funcionario.mv("public/fotografias_funcionarios/" + req.files.fotografia_funcionario, function (err) {
+                    req.files.fotografia_funcionario.mv("public/recursos/fotografias_funcionarios/" + req.files.fotografia_funcionario.name, function (err) {
                         if (err) {
                             console.error(err);
                             console.error("Erro ao guardar a imagem no ficheiro");
                         }
                     });
                 }
-
                 else {
                     console.log(err);
                     html += "<p>Erro ao executar pedido ao servidor</p>\n";
@@ -895,19 +991,37 @@ servidor.post("/processa_criar_funcionario", urlEncodedParser, function (req, re
         html += footer;
         res.send(html);
     }
-    /* }
-     else {
-         var html = "";
-         html += head;
-         html += "<h2>insere álbum</h2>\n";
-         html += "<p>funcionário não autenticado ou utilizador sem permissões</p>\n";
-         html += footer;
-         res.send(html);
-     }*/
 });
 
 
-/*meter dentro do select pr pesquisr no array de cinemas
-for (var i = 0; i < result[0].length; i++) {
-html += "<option value='" + result[0][i].id_autor + "'>" + result[0][i].nome_autor + "</option>";
-} */
+//bilhetes
+servidor.get("/bilhetes", function(req, res){
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        content = fs.readFileSync("public/home.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html)");
+    }
+    var html = "";
+    html+= head;
+    
+    html += footer;
+
+});
+
+/*
+// página para efectuar o logout do funcionário
+site.get("/logout_funcionario", function (req, res) {
+    // destruir variáveis de sessão individualmente
+    //req.session.id_funcionario = null;
+    // ou destruir a sessão completa
+    req.session.destroy();
+    var html = "";
+    html += topo;
+    html += "<h2>logout funcionário</h2>\n";
+    html += "<p>sessão do funcionário terminada</p>\n";
+    html += fundo;
+    res.send(html);
+});*/
