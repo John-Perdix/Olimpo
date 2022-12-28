@@ -120,13 +120,6 @@ servidor.get("/", function (req, res) {
 
 
 
-
-
-
-
-
-
-
 /*________________________________Login________________________________*/
 servidor.get("/login", function (req, res) {
     try {
@@ -196,7 +189,7 @@ servidor.get("/processa_login_funcionario", function (req, res) {
 
 
 
-// Perfil Funcionário
+/*________________________________Perfil________________________________*/
 servidor.get("/perfil_funcionario", function (req, res) {
     try {
         head = fs.readFileSync("public/head.html", "utf-8");
@@ -280,7 +273,144 @@ servidor.get("/perfil_funcionario", function (req, res) {
     }
 });
 
+/*________________________________Altera Funcionário________________________________*/
+servidor.get("/altera_funcionario", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html");
+    }
 
+    var html = "";
+    html += head;
+
+        if (req.session.id_funcionario) {
+            console.log("A sessão é esta: " + req.session.id_funcionario);
+            var query = "SELECT id_funcionario, nome_funcionario, nif_funcionario, cc_funcionario, dn_funcionario FROM Funcionarios WHERE id_funcionario = " + req.session.id_funcionario + ";";
+            //res.send(query);
+            pool.query(query, function (err, result, fields) {
+                html += "<h2>Altera Funcionário</h2>\n";
+                if (!err) {
+                    if (result && result.length == 1) {
+                        html += "<form name='form_altera_funcionario' method='post' action='processa_altera_funcionario'>\n";
+                        html += "<input type='hidden' value='" + req.query.id_funcionar + "' name='id_funcionario'>\n";
+                        html += "<table>\n";
+                        html += "<tr><td>Nome:</td><td><input type='text' name='nome_funcionario' placeholder='Nome do Funcionário' value='" + result[0].nome_funcionario + "'></td></tr>\n";
+                        html += "<tr><td>NIF:</td><td><input type='number' name='nif_funcionario' placeholder='123456789' pattern='[0-9]{9}' value='" + result[0].nif_funcionario + "'></td></tr>\n";
+                        html += "<tr><td>Cartão de Cidadão:</td><td><input type='number' name='cc_funcionario' placeholder='12345678' pattern='[0-9]{8}' value='" + result[0].cc_funcionario + "'></td></tr>\n";
+                        html += "<tr><td>Data de Nascimento:</td><td><input type='date' name='dn_funcionario' value='" + result[0].dn_funcionario + "'></td></tr>\n";
+                        html += "<tr><td colspan='2'><input type='submit' value='Alterar'>&nbsp;</td></tr>\n";
+                        html += "</table>\n";
+                        html += "</form>\n";
+                    }
+                    else {
+                        html += "<p>erro ao executar pedido ao servidor</p>\n";
+                    }
+                    html += footer;
+                    res.send(html);
+                }
+                else {
+                    var html = "";
+                    html += head;
+                    html += "<h2>Altera Funcionário</h2>\n";
+                    html += "<p>Funcionário não Encontrado</p>\n";
+                    console.log(err);
+                    html += footer;
+                    res.send(html);
+                }
+            });
+        }
+        else {
+            var html = "";
+            html += head;
+            html += "<h2>Altera Funcionário</h2>\n";
+            html += "<p>Funcionário não especificado</p>\n";
+            html += footer;
+            res.send(html);
+        }
+    
+    
+});
+
+/*________________________________Processa Altera Funcionário________________________________*/
+servidor.post("/processa_altera_funcionario", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html");
+    }
+
+    if (req.session.id_funcionario) {
+        if (req.body.nome_funcionario && req.body.nif_funcionario && req.body.cc_funcionario && req.body.dn_funcionario) {
+            var query = "UPDATE Funcionarios SET nome_funcionario = " + mysql.escape(req.body.nome_funcionario) + ", nif_funcionario = " + mysql.escape(req.body.nif_funcionario) + ", cc_funcionario = " + mysql.escape(req.body.cc_funcionario) + ", dn_funcionario = " + mysql.escape(req.body.dn_funcionario) + " WHERE id_funcionario = " + req.session.id_funcionario + ";";
+            pool.query(query, function (err, result, fields) {
+                var html = "";
+                html += head;
+                html += "<h2>Altera Funcionário</h2>\n";
+                if (!err) {
+                    html += "<p>\n";
+                    if (result && result.affectedRows > 0) {
+                        html += "Funcionario alterado com sucesso para: '" + req.body.nome_funcionario + " / " + req.body.nif_funcionario + " / " + req.body.cc_funcionario + " / " + req.body.dn_funcionario + "'\n";
+                    } else {
+                        html += "Falha ao alterar Funcionário\n";
+                    }
+                    html += "</p>\n";
+                }
+                else {
+                    html += "<p>Erro ao executar pedido ao servidor</p>\n";
+                    console.log(err);
+                }
+                html += footer;
+                res.send(html);
+            });
+        } else {
+            var html = "";
+            html += head;
+            html += "<h2>Altera Funcionário</h2>\n";
+            html += "<p>Por favor, identifique previamente o Funcionário</p>\n";
+            console.log(req.body);
+            html += footer;
+            res.send(html);
+        }
+    }
+    else {
+        var html = "";
+        html += head;
+        html += "<h2>Altera Funcionário</h2>\n";
+        html += "<p>Funcionário não autenticado ou utilizador sem permissões</p>\n";
+        html += footer;
+        res.send(html);
+    }
+});
+
+
+
+// Logout do Funcionário
+servidor.get("/logout_funcionario", function (req, res) {
+    // destruir variáveis de sessão individualmente
+    //req.session.id_funcionario = null;
+    // ou destruir a sessão completa
+
+    try {
+        head = fs.readFileSync("public/head_timer.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html");
+    }
+
+    req.session.destroy();
+    var html = "";
+    html += head;
+    html += "<h2>Sessão do Funcionário terminada</h2>\n";
+    html += "<p>Aguarde. Será redireccionado para outra página</p>\n";
+    html += footer;
+    res.send(html);
+});
 
 
 
@@ -515,6 +645,175 @@ servidor.get("/alugueres", function (req, res) {
     });
 });
 
+/*______________________________________________________________________________________________________*/
+/*________________________________Consulta de Alugueres e Distribuidoras________________________________*/
+/*_______________________________________________TESTE__________________________________________________*/
+/*______________________________________________________________________________________________________*/
+servidor.get("/alugueres2", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        sem_distribuidoras = fs.readFileSync("public/sem_distribuidoras.html", "utf-8");
+        adiciona_aluguer1 = fs.readFileSync("public/adiciona_aluguer1.html", "utf-8");
+        adiciona_aluguer2 = fs.readFileSync("public/adiciona_aluguer2.html", "utf-8");
+        error_page = fs.readFileSync("public/error.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html");
+    }
+
+    var html = "";
+    html += head;
+
+    var query = "SELECT * FROM Distribuidoras; SELECT id_aluguer, id_filme, titulo_filme, nome_distribuidora, data_inicio_aluguer, data_fim_aluguer  FROM Alugueres INNER JOIN Distribuidoras using(id_distribuidora) INNER JOIN Filmes using(id_filme) WHERE NOW() BETWEEN data_inicio_aluguer AND data_fim_aluguer; SELECT id_aluguer, id_filme, titulo_filme, nome_distribuidora, data_inicio_aluguer, data_fim_aluguer  FROM Alugueres INNER JOIN Distribuidoras using(id_distribuidora) INNER JOIN Filmes using(id_filme) WHERE NOW() NOT BETWEEN data_inicio_aluguer AND data_fim_aluguer; SELECT id_filme, titulo_filme FROM Filmes; SELECT id_distribuidora, nome_distribuidora FROM Distribuidoras;";
+
+    //res.send(query);
+
+    //consulta distribuidoras
+    pool.query(query, function (err, result, fields) {
+        if (!err) {
+            if (result[0] && result.length[0] > 0) {
+                html += "<div class='container-body'>\n";
+                html += "<div class='container-body-item'>\n";
+                html += "<div class='container'>\n";
+                html += "<h2>Distribuidoras</h2>";
+                for (var i = 0; i < result.length[0]; i++) {
+                    html += "<div class='container-distribuidora'><div class='barra'></div><table><tr><td>" + result[0][i].id_distribuidora + "</td></tr><tr><td>" + result[0][i].nome_distribuidora + "</td></tr><tr><td>" + result[0][i].morada_distribuidora + "</td></tr><tr><td>" + result[0][i].email_distribuidora + "</td></tr><tr><td>" + result[0][i].telefone_distribuidora + "</td></tr></table></div>\n";
+                }
+                html += "</div>\n";
+                html += "</div>\n";
+
+            }
+            else {
+                html += sem_distribuidoras;
+            }
+        }
+        else {
+            html += error_page;
+        }
+        console.log(result[0]);
+        console.log(result[1]);
+        console.log(result[2]);
+        console.log(result[3]);
+        console.log(result[4]);
+    });
+
+
+    //consulta alugueres que estão neste momento ativos
+    /*query += "SELECT id_aluguer, id_filme, titulo_filme, nome_distribuidora, data_inicio_aluguer, data_fim_aluguer  FROM Alugueres INNER JOIN Distribuidoras using(id_distribuidora) INNER JOIN Filmes using(id_filme) WHERE NOW() BETWEEN data_inicio_aluguer AND data_fim_aluguer; ";*/
+    //res.send(query);
+    pool.query(query, function (err, result, fields) {
+        if (!err) {
+            html += "<div class='container-body-item'>\n";
+            html += "<div class='container-filmes'>";
+            html += "<div class='container-filmes-item1'>";
+            html += "<h2>Alugueres disponiveis</h2>\n";
+
+
+            if (result[1] && result.length[1] > 0) {
+                html += "<table class='tabela'>\n";
+                html += "<tr><th>Titulo do Filme</th><th>Id do filme</th><th>Id do aluguer</th><th>Data do inicio do aluguer</th><th>Data do fim do aluguer</th><th>Status</th></tr>\n";
+                for (var i = 0; i < result.length[1]; i++) {
+                    const ini = result[1][i].data_inicio_aluguer;
+                    const f = result[1][i].data_fim_aluguer;
+                    let inicio = month[ini.getMonth()];
+                    let fim = month[f.getMonth()];
+
+                    //Definição da data com nome do mês
+                    html += "<tr><td>" + result[1][i].titulo_filme + "</td><td>" + result[1][i].id_filme + "</td><td>" + result[1][i].id_aluguer + "</td><td>" + result[1][i].data_inicio_aluguer.getDate() + "/" + inicio + "/" + result[1][i].data_inicio_aluguer.getFullYear() + "</td><td>" + result[1][i].data_fim_aluguer.getDate() + "/" + fim + "/" + result[1][i].data_fim_aluguer.getFullYear()+ "</td><td><i class='fa-solid fa-circle-check ativo'></i></td></tr>\n";
+                }
+                html += "</table>"
+            }
+            else {
+                html += "<p>Não há filmes alugados.</p>\n";
+            }
+        }
+        else {
+            html += error_page;
+        }
+    });
+
+        //consulta alugueres que NÃO estão neste momento ativos
+        /*query += "SELECT id_aluguer, id_filme, titulo_filme, nome_distribuidora, data_inicio_aluguer, data_fim_aluguer  FROM Alugueres INNER JOIN Distribuidoras using(id_distribuidora) INNER JOIN Filmes using(id_filme) WHERE NOW() NOT BETWEEN data_inicio_aluguer AND data_fim_aluguer;";*/
+        //res.send(query);
+        pool.query(query, function (err, result, fields) {
+            if (!err) {
+                if (result[2] && result.length[2] > 0) {
+                    for (var i = 0; i < result.length[2]; i++) {
+                        html += "<tr><td>" + result[2][i].titulo_filme + "</td><td>" + result[2][i].id_filme + "</td><td>" + result[2][i].id_aluguer + "</td><td>" + result[2][i].data_inicio_aluguer.getDate() + "/" + result[2][i].data_inicio_aluguer.getMonth() + "/" + result[i].data_inicio_aluguer.getFullYear() + "</td><td>" + result[2][i].data_fim_aluguer.getDate() + "/" + result[2][i].data_fim_aluguer.getMonth() + "/" + result[i].data_fim_aluguer.getFullYear() + "</td><td><i class='fa-solid fa-circle-xmark desativo'></i></td></tr>\n";
+                    }
+                    html += "</table>\n";
+                    html += "</div>";
+                    html += "<div class='container-filmes-item2'>";
+                    html += "</div>";
+                    html += "</div>";
+                    html += "</div>\n";
+                }
+                else {
+                    html += "<p>Não há filmes alugados.</p>\n";
+                }
+            }
+            else {
+                html += error_page;
+            }
+            html += "<div class='container-filmes-item2'>";
+            html += "</div>";
+            html += "</div>";
+        });
+
+    //consulta de filmes para a o select filmes
+    //query += "SELECT id_filme, titulo_filme FROM Filmes;";
+    //res.send(query);
+    pool.query(query, function (err, result, fields) {
+        if (!err) {
+            html += adiciona_aluguer1;
+            if (result[3] && result.length[3] > 0) {
+                for (var i = 0; i < result.length[3]; i++) {
+                    html += "<option value='" + result[3][i].id_filme + "' name='" + result[3][i].id_filme + "'>" + result[3][i].titulo_filme + "</option>";
+                }
+            }
+            else {
+                html += "<p>Não há filmes alugados.</p>\n";
+            }
+        }
+        else {
+            html += error_page;
+        }
+
+        //html += adiciona_aluguer2;
+        //html +="<tr><td><td> <span class='password_alert' id='valida_filme'> </span></td></td></tr>";
+
+    });
+
+    //query += "SELECT id_distribuidora, nome_distribuidora FROM Distribuidoras;";
+    pool.query(query, function (err, result, fields) {
+        html += "<td><select name='id_distribuidora' id='id_distribuidora' title='id_distribuidora'>";
+        if (!err) {
+            if (result[4] && result.length[4] > 0) {
+                for (var i = 0; i < result.length[4]; i++) {
+                    console.log("os resultados das distrubuiodoras são maoires que 0");
+                    html += "<option value='" + result[4][i].id_distribuidora + "' name='" + result[4][i].id_distribuidora + "'>" + result[4][i].nome_distribuidora + "</option>";
+                }
+                html+= "</select></td>";
+                html +="<tr><td><std> <span class='password_alert' id='valida_distribuidora'> </span></td></td></tr>";
+            }
+            else {
+                html += "<p>Não há Distribuidoras alugados.</p>\n";
+            }
+        }
+        else {
+            html += error_page;
+        }
+        html += adiciona_aluguer2;
+        html += "<div class='container-filmes-item2'>";
+        html += "</div>";
+        html += "</div>";
+
+        html += footer;
+        res.send(html);
+    });
+});
+
 /*________________________________Processa Adiciona alugueres________________________________*/
 servidor.post("/processa_adiciona_aluguer", function (req, res) {
     try {
@@ -551,7 +850,7 @@ servidor.post("/processa_adiciona_aluguer", function (req, res) {
                             }
                         }
                     });*/
-                        html += "<p>O filme foi adicionado com sucesso</p>"; 
+                        html += "<p>O filme foi adicionado com sucesso</p>";
 
                     }
                     else {
