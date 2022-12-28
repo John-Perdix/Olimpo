@@ -1372,6 +1372,65 @@ servidor.get("/bilhetes", function(req, res){
 
 });
 
+
+//Adiciona cartaz
+servidor.get("/cartaz", function(req, res){
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        content = fs.readFileSync("public/home.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html)");
+    }
+    var html = "";
+    html+= head;
+    
+    var query = "SELECT * FROM Clientes Funcionarios INNER JOIN Bilhetes USING(id_funcionario) INNER JOIN Vendas USING(id_venda) INNER JOIN Assentos USING(id_assento) INNER JOIN Salas INNER JOIN Sessoes INNER JOIN Filmes INNER JOIN Cartazes_has_Filmes INNER JOIN Cinemas";
+    pool.query(query, function (err, result, fields) {
+        var html = "";
+        html += head;
+        html += "<h2>Novo Funcionário</h2>\n";
+        console.log("Estamos no !req.files");
+        if (!err) {
+            console.log("estamos no !req.files e deu erro aqui");
+            console.log(err);
+            if (result) {
+                html += "<div class='adiciona-filme'>";
+                html += "<form name ='adiciona_bilhete' id='adiciona_bilhete' action='processa_adiciona_bilhete' method='post'>";
+                html += "<table class='table-adiciona-filme'>";
+                html += "<tr>";
+                html += "<th>Adiciona um aluguer</th>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><label>Filme</label></td>";
+                html += "<td><label>Distribuidoras</label></td>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><select name='id_filme' id='id_filme' title='titulo_filme'>";
+                for(var i=0; i<result.length; i++ ){
+                    "<option value='" + result[i].id_filme + "'>" + result[i].titulo.filme + "</option>"
+            }
+            html += "</select>";
+
+
+        }
+            else {
+                html += "<p>Não foi possivel registar '" + req.body.nome_funcionario + "' como novo funcionário</p>\n";
+            }
+        }
+        else {
+            html += "<p>Erro ao executar pedido ao servidor</p>\n";
+        }
+        html += footer;
+        res.send(html);
+    });
+
+    
+    html += footer;
+
+});
+
 /*
 // página para efectuar o logout do funcionário
 site.get("/logout_funcionario", function (req, res) {
