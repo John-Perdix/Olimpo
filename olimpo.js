@@ -443,7 +443,8 @@ servidor.get("/filmes", function (req, res) {
                 html += "<tr><th>Titulo do Filme</th><th>Diretor</th><th>Ano</th><th>Duração</th><th>Classificação</th><th>Premio</th><th>Poster</th></tr>\n";
                 for (var i = 0; i < result.length; i++) {
                     console.log("os resultados são maiores que 0");
-                    html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].nome_diretor + "</td><td>" + result[i].ano_filme + "</td><td>" + result[i].runtime_filme + " min.</td><td>" + result[i].classificacao_filme + "</td><td>" + result[i].premios_filme + "</td><td><img class='poster_filme' src='recursos/" + result[i].poster_filme + "' alt='Poster do filme'></td></tr>\n";
+                    html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].nome_diretor + "</td><td>" + result[i].ano_filme + "</td><td>" + result[i].runtime_filme + " min.</td><td>" + result[i].classificacao_filme + "</td><td>" + result[i].premios_filme + "</td><td><img class='poster_filme' src='recursos/posteres_filmes/" + result[i].poster_filme + "' alt='Poster do filme'></td></tr>\n";
+                    console.log(i);
                 }
                 html += "</table>\n";
                 html += "</div>"
@@ -592,6 +593,7 @@ servidor.get("/alugueres", function (req, res) {
             html += "</div>";
         });
 
+        //form para adicionar aluguer
     //consulta de filmes para a o select filmes
     var query3 = "SELECT id_filme, titulo_filme FROM Filmes;";
     //res.send(query);
@@ -691,11 +693,6 @@ servidor.get("/alugueres2", function (req, res) {
         else {
             html += error_page;
         }
-        console.log(result[0]);
-        console.log(result[1]);
-        console.log(result[2]);
-        console.log(result[3]);
-        console.log(result[4]);
     });
 
 
@@ -898,7 +895,7 @@ servidor.post("/processa_adiciona_filme", function (req, res) {
     console.log(req.body);
 
     if (req.body.titulo_filme && req.body.ano_filme && req.body.classificacao_filme && req.body.genero_filme && req.body.duracao_filme && req.body.premios_filme && req.body.poster_filme) {
-        var query = "INSERT INTO Filmes VALUES (null, '" + req.body.titulo_filme + "', '" + req.body.ano_filme + "', '" + req.body.classificacao_filme + "', '" + req.body.genero_filme + "', '" + req.body.poster_filme + "', '" + req.body.duracao_filme + "', '" + req.body.premios_filme + "');";
+        var query = "INSERT INTO Filmes VALUES (null, '" + req.body.titulo_filme + "', '" + req.body.ano_filme + "', '" + req.body.classificacao_filme + "', '" + req.body.genero_filme + "', 'poster', '" + req.body.duracao_filme + "', '" + req.body.premios_filme + "');";
 
         if (!req.files) {
             pool.query(query, function (err, result, fields) {
@@ -922,13 +919,37 @@ servidor.post("/processa_adiciona_filme", function (req, res) {
                 res.send(html);
             });
         }
-        else {
-            var html = "";
-            html += head;
-            html += "<h2>Adiciona Filme</h2>\n";
-            html += "<p>Dados </p>\n";
-            html += fundo;
-            res.send(html);
+        //Guardar o todos os dados e deixar em branco o poster do filme (com placeholder)
+        //Depois no req.files fazer alter do atributo e passar o poster_filme com o nome do ficheiro
+        else if (req.files.poster_filme) {
+            //novo query para fazer o update do atributo
+            console.log("Estamos no req.files");
+            query2 = "UPDATE Filmes SET poster_filme = '" + req.files.fotografia_poster_filme.name + "' WHERE id_funcionario = LAST_INSERT_ID();";
+            pool.query(query2, function (err, result, fields) {
+                var html = "";
+                html += head;
+                html += "<h2>Adicionar Filme</h2>\n";
+                if (!err) {
+                    if (result) {
+                        html += "<p>O poster do filme'" + req.body.titulo_filme + "' foi inserido com sucesso</p>\n";
+                    }
+                    else {
+                        html += "<p>Não foi possivel inserir o poster do filme '" + req.body.titulo_filme + "'</p>\n";
+                    }
+                    req.files.poster_filme.mv("public/recursos/posteres_filmes/" + req.files.poster_filme.name, function (err) {
+                        if (err) {
+                            console.error(err);
+                            console.error("Erro ao guardar a imagem no ficheiro");
+                        }
+                    });
+                }
+                else {
+                    console.log(err);
+                    html += "<p>Erro ao executar pedido ao servidor</p>\n";
+                }
+                html += footer;
+                res.send(html);
+            });
         }
     }
 });
@@ -1169,7 +1190,7 @@ servidor.get("/funcionarios", function (req, res) {
                 html += "<tr><th>Nome</th><th>Número de Identificação Fiscal</th><th>Cartão de Cidadão</th><th>Data de Nascimento</th><th>Data de Entrada</th><th>Password</th><th>Fotografia</th></tr>\n";
                 for (var i = 0; i < result.length; i++) {
                     console.log("os resultados são maiores que 0");
-                    html += "<tr><td>" + result[i].nome_funcionario + "</td><td>" + result[i].nif_funcionario + "</td><td>" + result[i].cc_funcionario + "</td><td>" + result[i].dn_funcionario + "</td><td>" + result[i].data_entrada_funcionario + "</td><td>" + result[i].password_funcionario + "</td><td><img class='fotografia_funcionario' src='recursos/" + result[i].fotografia_funcionario + "' alt='Fotografia do Funcionário'></td</tr>\n";
+                    html += "<tr><td>" + result[i].nome_funcionario + "</td><td>" + result[i].nif_funcionario + "</td><td>" + result[i].cc_funcionario + "</td><td>" + result[i].dn_funcionario + "</td><td>" + result[i].data_entrada_funcionario + "</td><td>" + result[i].password_funcionario + "</td><td><img class='fotografia_funcionario' src='recursos/fotografias_funcionarios/" + result[i].fotografia_funcionario + "' alt='Fotografia do Funcionário'></td</tr>\n";
                 }
                 html += "</table>\n";
                 html += "</div>"
@@ -1306,6 +1327,47 @@ servidor.get("/bilhetes", function(req, res){
     var html = "";
     html+= head;
     
+    var query = "SELECT * FROM Clientes Funcionarios INNER JOIN Bilhetes USING(id_funcionario) INNER JOIN Vendas USING(id_venda) INNER JOIN Assentos USING(id_assento) INNER JOIN Salas INNER JOIN Sessoes INNER JOIN Filmes INNER JOIN Cartazes_has_Filmes INNER JOIN Cinemas";
+    pool.query(query, function (err, result, fields) {
+        var html = "";
+        html += head;
+        html += "<h2>Novo Funcionário</h2>\n";
+        console.log("Estamos no !req.files");
+        if (!err) {
+            console.log("estamos no !req.files e deu erro aqui");
+            console.log(err);
+            if (result) {
+                html += "<div class='adiciona-filme'>";
+                html += "<form name ='adiciona_bilhete' id='adiciona_bilhete' action='processa_adiciona_bilhete' method='post'>";
+                html += "<table class='table-adiciona-filme'>";
+                html += "<tr>";
+                html += "<th>Adiciona um aluguer</th>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><label>Filme</label></td>";
+                html += "<td><label>Distribuidoras</label></td>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><select name='id_filme' id='id_filme' title='titulo_filme'>";
+                for(var i=0; i<result.length; i++ ){
+                    "<option value='" + result[i].id_filme + "'>" + result[i].titulo.filme + "</option>"
+            }
+            html += "</select>";
+
+
+        }
+            else {
+                html += "<p>Não foi possivel registar '" + req.body.nome_funcionario + "' como novo funcionário</p>\n";
+            }
+        }
+        else {
+            html += "<p>Erro ao executar pedido ao servidor</p>\n";
+        }
+        html += footer;
+        res.send(html);
+    });
+
+    
     html += footer;
 
 });
@@ -1324,3 +1386,4 @@ site.get("/logout_funcionario", function (req, res) {
     html += fundo;
     res.send(html);
 });*/
+
