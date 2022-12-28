@@ -261,3 +261,27 @@ body{
     padding-right: 3em;
     
 }
+
+.fotografia_funcionario{
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    object-position: 55%;
+    padding: 1em;
+    background-color: #C0C0C0;
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+}
+
+.tabela_perfil{
+    background-color: #C0C0C0;
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+    padding: 2em;
+}
+
+.perfil-container{
+    display: flex;
+}
