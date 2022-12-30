@@ -54,6 +54,7 @@ body{
 
 .navbar ul li{ 
     display: inline;
+    margin-bottom: 2em;
 }
 
 .navbar ul li a{
@@ -64,7 +65,6 @@ body{
     border-width:3px;
     border-color:#FFFFFF #808080 #808080 #FFFFFF;
     padding: 15px 30px;
-    margin-right: 30px;
     font-weight: 800;
 }
 
@@ -284,4 +284,78 @@ body{
 
 .perfil-container{
     display: flex;
+}
+
+.perfil-container img{
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+}
+
+select{
+    padding: 0.7em;
+    margin-bottom: 0.4em;
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+}
+
+input{
+    padding: 0.7em;
+    margin-bottom: 0.3em;
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+    background-color: #C0C0C0;
+
+}
+
+input:focus {
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+    background-color: #C0C0C0;
+}
+
+select :enabled{
+    padding: 0.7em;
+    border-style: solid;
+    border-width:3px;
+    border-color: #202020;
+}
+
+/*
+PAGINA NÃO AUTENTICADO
+*/
+.wrapper1{
+    display: flex;
+}
+
+.contentor{
+    margin: auto;
+    display: flex;
+    background-color: #C0C0C0;
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+    padding: 2em;
+    max-width: min-content;
+}
+
+.contentor-item{
+    padding: 1.5em;
+    min-width: 15em;
+}
+
+
+/*
+PAGINA CARTAZ
+*/
+.container-cartaz{
+    display: flex;
+}
+
+.container-cartaz-filme{
+    flex-direction: row;
+    flex-wrap: wrap;
 }

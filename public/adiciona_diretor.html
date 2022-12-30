@@ -1,0 +1,97 @@
+<div class="grid">
+    <div id="child1">
+        <h1>Adiciona Diretor</h1>
+
+    </div>
+
+<div id="child2">
+    <form name ="adicionaDiretor" id="adiciona_diretor" action="processa_adiciona_diretor" method="post" onsubmit="validate_nome() & validate_dn() & validate_premios()">
+        <table class="table-adiciona-filme">
+            <tr>
+                <td><label>Nome</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="nome_diretor" name="nome_diretor" placeholder="Insira o nome do Diretor" required></td>
+            </tr>
+
+            <tr>
+                <td> <span class="password_alert" id="valida_nome"> </span></td>
+            </tr>
+
+            <tr>
+                <td><label>Data de Nascimento</label></td>
+            </tr>
+            <tr>
+                <td><input type="date" id="dn_diretor" name="dn_diretor" title="data de nascimento" required></td>
+            </tr>
+
+            <tr>
+                <td> <span class="password_alert" id="valida_dn"> </span></td>
+            </tr>
+
+            <tr>
+                <td><label>Prémio</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="premios_diretor" name="premios_diretor" placeholder="Insira o melhor prémio atribuido" required></td>
+            </tr>
+
+            <tr>
+                <td> <span class="password_alert" id="valida_premios"> </span></td>
+            </tr>
+
+            <tr>
+                <td><label>Fotografia</label></td>
+            </tr>
+            <tr>
+                <td><input type="file" id="fotografia_diretor" name="fotografia_diretor" placeholder="Insira o nome da imagem" required></td>
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <input type="button" onclick="if (validate_nome() & validate_dn() & validate_premios()) { document.getElementById('adiciona_diretor').submit();}" value="Adicionar">
+
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<script>
+    function validate_nome() {
+       var nome = document.getElementById("nome_diretor").value;
+
+        if (nome == "") {
+            document.getElementById('valida_nome').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o nome do Diretor";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_dn() {
+       var nome = document.getElementById("dn_diretor").value;
+
+        if (nome == "") {
+            document.getElementById('valida_dn').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a data de nascimento do Diretor";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_premios() {
+       var nome = document.getElementById("premios_diretor").value;
+
+        if (nome == "") {
+            document.getElementById('valida_premios').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar um prémio";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+</script>

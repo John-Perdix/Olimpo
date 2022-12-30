@@ -1,0 +1,23 @@
+</tr>
+<td colspan='2'>
+<input type="button" onclick="if (validate_filme()) { document.getElementById('adiciona_cartaz').submit();}" value="Adicionar filme ao cartaz">
+</td>
+</table>
+</form>
+</div>
+</div>
+
+<script>
+    function validate_filme() {
+        var nome = document.getElementById("id_filme").value;
+
+        if (nome == "") {
+            document.getElementById('valida_filme').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar um nome";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+</script>

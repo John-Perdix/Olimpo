@@ -1,13 +1,9 @@
 
 </tr>
 <tr>
-    <td>
     <td> <span class="password_alert" id="valida_id_filme"> </span></td>
-    </td>
 
-    <td>
     <td> <span class="password_alert" id="valida_distribuidora"></span></td>
-    </td>
 </tr>
 
 <tr>
@@ -21,19 +17,15 @@
     <td><input type="date" id="data_fim_aluguer" name="data_fim_aluguer" placeholder="Date.now()" required></td>
 
     <tr>
-        <td>
         <td> <span class="password_alert" id="valida_inicio_aluguer"> </span></td>
-        </td>
     
-        <td>
         <td> <span class="password_alert" id="valida_fim_aluguer"></span></td>
-        </td>
     </tr>
 
     
     <td colspan="2">
         <input type="button"
-            onclick="document.getElementById('adiciona_aluguer').submit();"
+            onclick="if (validate_filme() & validate_distribuidora() & validate_data_inicio_aluguer() & validate_data_fim_aluguer()){document.getElementById('adiciona_aluguer').submit()};"
             value="Adicionar Aluguer">
 
     </td>
@@ -44,13 +36,13 @@
 
 
 <!--SCRIPT DE VALIDAÇÃO-->
-<!-- 
+
 <script>
     function validate_filme() {
-        var nome = document.getElementById("id_filme").value;
+        var filme = document.getElementById("id_filme").value;
 
-        if (nome == "") {
-            document.getElementById('valida_id_filme').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o título do filme";
+        if (!filme) {
+            document.getElementById('valida_id_filme').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que preencher o título do filme";
             return false;
         }
         else {
@@ -59,10 +51,10 @@
     }
 
     function validate_distribuidora() {
-        var nome = document.getElementById("id_distribuidora").value;
+        var distribuidora = document.getElementById("id_distribuidora").value;
 
-        if (nome == "") {
-            document.getElementById('valida_distribuidora').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o nome da Distribuidora";
+        if (!distribuidora) {
+            document.getElementById('valida_distribuidora').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que preecher o nome da Distribuidora";
             return false;
         }
         else {
@@ -71,10 +63,10 @@
     }
 
     function validate_data_inicio_aluguer() {
-        var nome = document.getElementById("data_inicio_aluguer").value;
+        var data_inicio = document.getElementById("data_inicio_aluguer").value;
 
-        if (nome == "") {
-            document.getElementById('valida_inicio_aluguer').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a data de início do Aluguer";
+        if (!data_inicio) {
+            document.getElementById('valida_inicio_aluguer').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que preencher a data inicio do aluguer";
             return false;
         }
         else {
@@ -83,14 +75,14 @@
     }
 
     function validate_data_fim_aluguer() {
-        var nome = document.getElementById("data_fim_aluguer").value;
+        var data_fim = document.getElementById("data_fim_aluguer").value;
 
-        if (nome == "") {
-            document.getElementById('valida_fim_aluguer').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a data de fim do Aluguer";
+        if (!data_fim) {
+            document.getElementById('valida_fim_aluguer').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que preencher a data de fim do Aluguer";
             return false;
         }
         else {
             return true;
         }
     }
-</script>-->
+</script>
