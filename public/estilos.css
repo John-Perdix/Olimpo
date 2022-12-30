@@ -359,3 +359,27 @@ PAGINA CARTAZ
     flex-direction: row;
     flex-wrap: wrap;
 }
+
+/*botoes*/
+a{
+    color: rgb(48, 48, 48);
+    text-decoration: none;
+    background-color: #C0C0C0;
+    border-style: solid;
+    border-width:3px;
+    border-color:#FFFFFF #808080 #808080 #FFFFFF;
+    padding: 15px 30px;
+    font-weight: 800;
+}
+
+a:focus {
+    border-style: solid;
+    border-width:3px;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+    background-color: #C0C0C0;
+}
+
+a:hover{
+    /*background-color: #394dcd;*/
+    color: #394dcd;
+}

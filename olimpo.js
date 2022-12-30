@@ -119,7 +119,11 @@ servidor.get("/", function (req, res) {
 });
 
 
-
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*===========================================FUNCIONARIOS=================================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
 /*________________________________Login________________________________*/
 servidor.get("/login", function (req, res) {
     try {
@@ -406,7 +410,11 @@ servidor.get("/logout_funcionario", function (req, res) {
 });
 
 
-
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*================================================DIRETORES===============================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
 /*________________________________Consulta de Diretores________________________________*/
 servidor.get("/diretores", function (req, res) {
     try {
@@ -524,7 +532,11 @@ servidor.post("/processa_adiciona_diretor", function (req, res) {
 
 
 
-
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*=================================================FILMES=================================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
 /*________________________________Consulta de Filmes________________________________*/
 servidor.get("/filmes", function (req, res) {
     try {
@@ -574,7 +586,6 @@ servidor.get("/filmes", function (req, res) {
         res.send(html);
     });
 });
-
 
 
 /*________________________________Adiciona Filmes________________________________*/
@@ -932,7 +943,11 @@ servidor.get("/error", function (req, res) {
     res.send(html);
 
 });
-
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*==============================================ALUGUERES=================================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
 /*______________________________________________________________________________________________________*/
 /*________________________________Consulta de Alugueres e Distribuidoras________________________________*/
 /*_______________________________________________Original________________________________________________*/
@@ -1116,7 +1131,11 @@ servidor.post("/processa_adiciona_aluguer", function (req, res) {
 });
 
 
-
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*===============================================CLIENTES=================================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
 /*________________________________Consulta de Clientes________________________________*/
 servidor.get("/clientes", function (req, res) {
     try {
@@ -1476,6 +1495,11 @@ servidor.post("/processa_adiciona_cliente", urlEncodedParser, function (req, res
     }
 });
 
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*=================================================ATORES=================================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
 /*________________________________Adiciona Atores________________________________*/
 servidor.get("/adiciona_ator", function (req, res) {
     try {
@@ -1579,7 +1603,11 @@ Solução para não utilizar o memso assento na mesma sessão
 select para os bilhetes que não foram vendidos para a seesão
 No javascript não permitir 
  
-
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*===============================================FUNCIONARIOS=============================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
 /*________________________________Consulta de Funcionários________________________________*/
 servidor.get("/funcionarios", function (req, res) {
     try {
@@ -1732,6 +1760,12 @@ servidor.post("/processa_criar_funcionario", urlEncodedParser, function (req, re
     }
 });
 
+
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*==================================================CARTAZ================================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
 //Adiciona cartaz
 servidor.get("/cartaz", function (req, res) {
     try {
@@ -1888,6 +1922,226 @@ servidor.get("/nao_autenticado", function (req, res) {
     res.send(html);
 });
 
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*==================================================SESSAO================================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
+
+
+/*_____________________________________Consulta sessao___________________________________*/
+/*_______________________________________________________________________________________*/
+servidor.get("/sessoes", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        error_page = fs.readFileSync("public/error.html", "utf-8");
+        script = fs.readFileSync("public/script.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html)");
+    }
+    var sessao = req.session.id_funcionario;
+    var html = "";
+    html += head;
+    var query = "SELECT * FROM Filmes INNER JOIN Sessoes USING(id_filme) INNER JOIN Bilhetes USING(id_sessao) INNER JOIN Vendas USING(id_venda) INNER JOIN Funcionarios USING(id_funcionario) WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "';)";
+
+    pool.query(query, function (err, result, fields) {
+        var html = "";
+        html += head;
+        html += "<h1>Sessões</h1>\n";
+        if (!err) {
+            console.log(err);
+            html += "<div class='container-filmes'>";
+            html += "<div class='container-filmes-item1'>";
+            if (result && result.length > 0) {
+                html += "<table class='tabela'>\n";
+                html += "<tr><th>Data e hora da sessao</th><th>Titulo do Filme</th><th>Diretor</th><th>Ano</th><th>Duração</th><th>Classificação</th><th>Premio</th><th>Género</th><th>Poster</th></tr>\n";
+                for (var i = 0; i < result.length; i++) {
+                    console.log("os resultados são maiores que 0");
+                    html += "<tr><td>" + result[i].data_hora_sessao + "</td><td>" + result[i].titulo_filme + "</td><td>" + result[i].id_filme + "</td><td>" + result[i].id_sessao + "</td><td>" + result[i].poster_filme + "</td><td>" + result[i].premios_filme + "</td><td>" + result[i].nome_genero + "</td><td><img class='poster_filme' src='recursos/posteres_filmes/" + result[i].poster_filme + "' alt='Poster do filme'></td> <td> <a href='altera_sessao?id_filme=" + result[i].id_filme + "'>&#9998;</a> </td> <td> <a href='confirma_apaga_sessao?id_filme=" + result[i].id_filme + "'>&#10007;</a> </td> </tr>\n";
+                }
+                html += "</table>\n";
+                if (req.session.id_funcionario) {
+                    html += "<a class='btn_adiciona_sessoes' href='/adiciona_sessao'>Adiciona sessão</a>";
+                }
+                html += "</div>"
+            }
+            else {
+                if (req.session.id_funcionario) {
+                    html += "<a class='btn_adiciona_sessoes' href='/adiciona_sessao'>Adiciona sessão</a>";
+                }
+                html += "<h1>Não foi possivel aceder aos dados das sessões</h1>\n";
+            }
+        }
+        else {
+            html += error_page;
+        }
+        html += footer;
+        res.send(html);
+    });
+});
+
+
+/*_____________________________________Adiciona sessao___________________________________*/
+/*_______________________________________________________________________________________*/
+servidor.get("/adiciona_sessao", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        error_page = fs.readFileSync("public/error.html", "utf-8");
+        script = fs.readFileSync("public/script.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros html)");
+    }
+    var html = "";
+    html += head;
+
+    if (req.session.id_funcionario) {
+
+        var query = "SELECT id_filme, titulo_filme nome_cliente FROM Filmes; SELECT id_sala FROM Salas";
+        if (req.session.id_funcionario) {
+            pool.query(query, function (err, result, fields) {
+                var html = "";
+                html += head;
+                html += "<h2>Venda de Bilhete</h2>\n";
+                if (!err) {
+                    console.log(err);
+                    if (result) {
+                        console.log(result);
+                        html += "<div class='adiciona-filme'>\n";
+                        html += "<form name ='seleciona_cliente' id='seleciona_cliente' action='processa_sessao' method='post'>\n";
+                        html += "<table class='table-adiciona-filme'>\n";
+                        html += "<tr>\n";
+                        html += "<th>Venda de Bilhete</th>\n";
+                        html += "</tr>\n";
+                        html += "<tr>\n";
+                        html += "<td><label>Cliente</label></td>\n";
+                        html += "</tr>\n";
+                        html += "<tr>\n";
+                        html += "<td><select name='id_filme' id='id_filme' title='id_filme'>\n";
+                        html += "<option disabled selected value> -- Seleciona um filme -- </option>\n";
+                        for (var i = 0; i < result[0].length; i++) {
+                            html += "<option id='" + result[0][i].id_filme + "' value='" + result[0][i].id_filme + "' name='" + result[0][i].id_filme + "''>" + result[0][i].titulo_filme + "</option>\n";
+                        }
+                        html += "</select>\n";
+                        html += "<option disabled selected value> -- Seleciona uma sala -- </option>\n";
+                        for (var i = 0; i < result[1].length; i++) {
+                            html += "<option id='" + result[1][i].id_sala + "' value='" + result[1][i].id_sala + "' name='" + result[1][i].id_sala + "''>" + (result[1][i].id_sala - result[1][i].id_sala + i) + "</option>\n";// Utiliza-se: (result[1][i].id_sala - result[1][i].id_sala + i) para que o numero da sala apareça sempre a partir do 1
+                        }
+                        html += "</select>\n";
+                        html += "<tr><td> <span class='password_alert' id='valida_filme'> </span></td><td> <span class='password_alert' id='valida_sala'> </span></td></tr>\n";
+                        html += "<tr><td>Data de sessão</td><td><input id='data_sessao' title='data de sessão' name='data_sessao' type='date' required></td></tr>\n";
+                        html += "<tr><td>Hora de sessão</td><td><input id='hora_sessao' title='hora de sessão' name='hora_sessao' type='time' required></td></tr>\n";
+                        html += "<td colspan='2'><input type='button' onclick='if (validate_filme() validate_data() validate_hora()) { document.getElementById(\"seleciona_cliente\").submit();}' value='Selecionar cliente'></td>\n";
+                        html += "</tr>\n";
+                        html += "</table>\n";
+                        html += "</form>\n";
+                        html += "</div>\n";
+                        html += script;
+                    } else {
+                        html += "<div class='adiciona-filme'>\n";
+                        html += "<h1>Não foi possivel ligar ao servidor para</h1>\>"
+                        html += "</div>\n"
+                    }
+                }
+                else {
+                    html += error_page;
+                }
+
+                html += footer;
+                res.send(html);
+            });
+
+        } else {
+            var html = "";
+            html += head;
+            html += nao_autenticado;
+            html += footer;
+            res.send(html);
+        }
+
+    } else {
+        var html = "";
+        html += head;
+        html += nao_autenticado;
+        html += footer;
+        res.send(html);
+    }
+});
+
+/*_____________________________________Adiciona sessao___________________________________*/
+/*_______________________________Processa Adiciona sessao________________________________*/
+servidor.post("/processa_adiciona_sessao", urlEncodedParser, function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        content = fs.readFileSync("public/home.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    if (req.session.id_funcionario) {
+        if (req.body.id_filme && req.body.id_sala && req.body.data_sessao && req.body.hora_sessao) {
+            var query = "INSERT INTO Sessoes VALUES (null, '" + req.body.id_filme + "', '" + req.body.id_sala + "', '" + req.body.data_sessao + " " + req.body.hora_sessao + "');";
+            //res.send(query);
+            console.log(query);
+
+            pool.query(query, function (err, result, fields) {
+                var html = "";
+                html += head;
+                html += "<h2>Venda de Bilhete</h2>\n";
+                if (!err) {
+                    console.log(err);
+                    if (result) {
+                        console.log(result);
+
+                    }
+                    else {
+                        html += error_page;
+                        html += "<p>Não foi possivel aceder aos dados do formulário</p>\n";
+                    }
+                }
+                else {
+                    html += error_page;
+                }
+                html += footer;
+                res.send(html);
+            });
+
+
+        }
+        else {
+            var html = "";
+            html += head;
+            html += error_page;
+            html += "<h2>Erro ao Adicionar Ator</h2>\n";
+            html += "<p>Dados incompletos, tenta de novo</p>\n";
+            console.log(req.body);
+            html += footer;
+            res.send(html);
+        }
+    } else {
+        var html = "";
+        html += head;
+        html += nao_autenticado;
+        html += footer;
+        res.send(html);
+    }
+
+});
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*===============================================BILHETES=================================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
+
+
 /*______________________________________________________________________________________*/
 /*_______________________________________Bilhetes_______________________________________*/
 /*______________________________________________________________________________________*/
@@ -1937,12 +2191,13 @@ servidor.get("/bilhetes", function (req, res) {
                     for (var i = 0; i < result.length; i++) {
                         html += "<option id='" + result[i].id_cliente + "' value='" + result[i].id_cliente + "' name='" + result[i].id_cliente + "''>" + result[i].nome_cliente + "</option>\n";
                     }
+                    html += "</select>\n";
                     html += "<tr><td> <span class='password_alert' id='valida_cliente'> </span></td></tr>\n"
                     html += "<td colspan='2'><input type='button' onclick='if (validate_cliente()) { document.getElementById(\"seleciona_cliente\").submit();}' value='Selecionar cliente'></td>\n";
-                    html += "</select>\n";
                     html += "</tr>\n";
                     html += "</table>\n";
                     html += "</form>\n";
+                    html += "</div>\n";
                     html += script;
                 }
                 else {
@@ -2012,9 +2267,9 @@ servidor.post("/processa_adiciona_venda", urlEncodedParser, function (req, res) 
                         for (var i = 0; i < result[2].length; i++) {
                             html += "<option id='" + result[2][i].id_filme + "' value='" + result[2][i].id_filme + "' name='" + result[2][i].id_filme + "''>" + result[2][i].nome_filme + "</option>\n";
                         }
+                        html += "</select>\n";
                         html += "<tr><td> <span class='password_alert' id='valida_cliente'> </span></td></tr>\n"
                         html += "<td colspan='2'><input type='button' onclick='if (validate_cliente()) { document.getElementById(\"seleciona_cliente\").submit();' value='Selecionar cliente'></td>\n";
-                        html += "</select>";
                         html += "</tr>\n";
                         html += "</table>\n";
                         html += "</form>\n";
