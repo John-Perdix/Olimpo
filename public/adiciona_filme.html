@@ -37,11 +37,17 @@
                 <td> <span class="password_alert" id="valida_classificacao"> </span></td>
             </tr>
 
+<!--html += "<option id='" + result[i].id_cliente + "' value='" + result[i].id_cliente + "' name='" + result[i].id_cliente + "''>" + result[i].nome_cliente + "</option>";-->
+
             <tr>
                 <td><label>Género do Filme</label></td>
             </tr>
             <tr>
-                <td><input type="text" id="genero_filme" name="genero_filme" placeholder="Insira o Género do Filme" required></td>
+                <!--<td><input type="text" id="genero_filme" name="genero_filme" placeholder="Insira o Género do Filme" required></td>-->
+                <td>
+                    <select name="id_genero" id="id_genero" title="nome_genero">
+                        <option disabled selected value> -- Seleciona um Género -- </option>
+                
             </tr>
 
             <tr>

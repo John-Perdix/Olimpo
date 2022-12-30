@@ -1,0 +1,14 @@
+<script>
+    function validate_cliente() {
+        var nome = document.getElementById("id_cliente").value;
+
+        if (!id_cliente) {
+            document.getElementById('valida_cliente').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar um nome do cliente";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+</script>
