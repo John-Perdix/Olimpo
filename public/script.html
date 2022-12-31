@@ -11,4 +11,66 @@
         }
     }
 
+    function validate_filme() {
+        var filme = document.getElementById("id_filme").value;
+
+        if (!filme) {
+            document.getElementById('valida_filme').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar um filme";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_sala() {
+        var sala = document.getElementById("id_sala").value;
+
+        if (!sala) {
+            document.getElementById('valida_sala').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar uma sala";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_data() {
+        var data = document.getElementById("data_sessao").value;
+
+        if (!data) {
+            document.getElementById('valida_data').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar uma data";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_hora() {
+        var hora = document.getElementById("hora_sessao").value;
+
+        if (!hora) {
+            document.getElementById('valida_hora').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar uma hora";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function validate_sessao() {
+        var hora = document.getElementById("sessao").value;
+
+        if (!hora) {
+            document.getElementById('valida_sessao').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar uma hora";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    
+
 </script>

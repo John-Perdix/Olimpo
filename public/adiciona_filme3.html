@@ -1,0 +1,95 @@
+<tr>
+    <td colspan="2">
+        <input type="button" onclick="if (validate_titulo() & validate_ano() & validate_classificacao() & validate_genero() & validate_duracao() & validate_premios() & validate_diretor()) { document.getElementById('adiciona_filme').submit();}" value="Adicionar">
+        
+    </td>
+</tr>
+</table>
+</form>
+</div>
+
+<script>
+function validate_titulo() {
+var nome = document.getElementById("titulo_filme").value;
+
+if (nome == "") {
+document.getElementById('valida_titulo').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o título do filme";
+return false;
+}
+else {
+return true;
+}
+}
+
+function validate_ano() {
+var nome = document.getElementById("ano_filme").value;
+
+if (nome == "") {
+document.getElementById('valida_ano').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o ano do filme";
+return false;
+}
+else {
+return true;
+}
+}
+
+function validate_classificacao() {
+var nome = document.getElementById("classificacao_filme").value;
+
+if (nome == "") {
+document.getElementById('valida_classificacao').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a classificação do filme";
+return false;
+}
+else {
+return true;
+}
+}
+
+function validate_genero() {
+var genero = document.getElementById("id_genero").value;
+
+if (!genero) {
+document.getElementById('valida_genero').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o género do filme";
+return false;
+}
+else {
+return true;
+}
+}
+
+function validate_diretor() {
+var genero = document.getElementById("id_diretor").value;
+
+if (!genero) {
+document.getElementById('valida_diretor').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar o diretor do filme";
+return false;
+}
+else {
+return true;
+}
+}
+
+function validate_duracao() {
+var nome = document.getElementById("duracao_filme").value;
+
+if (nome == "") {
+document.getElementById('valida_duracao').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar a duração do filme";
+return false;
+}
+else {
+return true;
+}
+}
+
+function validate_premios() {
+var nome = document.getElementById("premios_filme").value;
+
+if (nome == "") {
+document.getElementById('valida_premios').innerHTML = "<i class='fa-sharp fa-solid fa-circle-exclamation'></i> Tem que colocar os prémios do filme";
+return false;
+}
+else {
+return true;
+}
+}
+</script>
