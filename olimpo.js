@@ -124,13 +124,13 @@ servidor.get("/", function (req, res) {
                 if (req.session.id_funcionario) {
                     html += "<div class='container-filmes-item1'>";
                     for (var i = 0; i < result.length; i++) {
-                    html += "<h2>Funcionario: " + result[i].nome_funcionario + "</h2>\n";
-                    html += "<img class='fotografia_funcionario' src='recursos/fotografias_funcionarios/" + result[i].fotografia_funcionario + "' alt='fotografia do funcionario'>";
+                        html += "<h2>Funcionario: " + result[i].nome_funcionario + "</h2>\n";
+                        html += "<img class='fotografia_funcionario' src='recursos/fotografias_funcionarios/" + result[i].fotografia_funcionario + "' alt='fotografia do funcionario'>";
                     }
                     html += "</div>";
                 }
             }
-        }else{
+        } else {
             html += head;
             html += content;
             html += consultas;
@@ -1256,6 +1256,7 @@ servidor.get("/clientes", function (req, res) {
                     html += "<tr><td>" + result[i].nome_cliente + "</td><td>" + result[i].dn_cliente + "</td><td>" + result[i].telefone_cliente + "</td><td>" + result[i].email_cliente + "</td><td>" + result[i].nif_cliente + "</td> <td>-</td> <td> <a href='altera_cliente?id_cliente=" + result[i].id_cliente + "'>&#9998;</a> </td> <td> <a href='confirma_apaga_cliente?id_cliente=" + result[i].id_cliente + "'>&#10007;</a> </td> </tr>\n";
                 }
                 html += "</table>\n";
+                html +="<a href='/clientes'>Clientes</a>";
             }
             else {
                 html += "<p>Não há nenhum cliente.</p>\n";
@@ -1282,7 +1283,7 @@ servidor.get("/confirma_apaga_cliente", function (req, res) {
         console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
     }
 
-    //if (req.session.id_funcionario) {
+    if (req.session.id_funcionario) {
     if (req.query.id_cliente) {
         var query = "SELECT id_cliente, nome_cliente, dn_cliente, telefone_cliente, email_cliente, nif_cliente FROM Clientes WHERE id_cliente = " + mysql.escape(req.query.id_cliente) + ";";
         console.log("ID do Ciente: " + req.query.id_cliente);
@@ -1316,7 +1317,7 @@ servidor.get("/confirma_apaga_cliente", function (req, res) {
         html += footer;
         res.send(html);
     }
-    /*}
+    }
     else {
         var html = "";
         html += topo;
@@ -1324,7 +1325,7 @@ servidor.get("/confirma_apaga_cliente", function (req, res) {
         html += "<p>funcionário não autenticado ou utilizador sem permissões</p>\n";
         html += fundo;
         res.send(html);
-    }*/
+    }
 });
 
 /*________________________________Processa Apaga Clientes________________________________*/
@@ -1338,7 +1339,7 @@ servidor.get("/processa_apaga_cliente", function (req, res) {
         console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
     }
 
-    //if (req.session.id_funcionario) {
+    if (req.session.id_funcionario) {
     if (req.query.id_cliente) {
         console.log("Consulta: " + req.query);
         var query = "DELETE FROM Clientes WHERE id_cliente = " + mysql.escape(req.query.id_cliente) + ";";
@@ -1373,7 +1374,7 @@ servidor.get("/processa_apaga_cliente", function (req, res) {
         html += footer;
         res.send(html);
     }
-    /*}
+    }
     else {
         var html = "";
         html += topo;
@@ -1381,7 +1382,7 @@ servidor.get("/processa_apaga_cliente", function (req, res) {
         html += "<p>funcionário não autenticado ou utilizador sem permissões</p>\n";
         html += fundo;
         res.send(html);
-    }*/
+    }
 });
 
 
@@ -1400,7 +1401,7 @@ servidor.get("/altera_cliente", function (req, res) {
     var html = "";
     html += head;
 
-    //if (req.session.id_funcionario) {
+    if (req.session.id_funcionario) {
     var query = "SELECT id_cliente, nome_cliente, dn_cliente, telefone_cliente, email_cliente, nif_cliente FROM Clientes WHERE id_cliente = " + req.query.id_cliente + ";";
     //res.send(query);
     pool.query(query, function (err, result, fields) {
@@ -1437,7 +1438,7 @@ servidor.get("/altera_cliente", function (req, res) {
             res.send(html);
         }
     });
-    /*}
+    }
     else {
         var html = "";
         html += head;
@@ -1445,7 +1446,7 @@ servidor.get("/altera_cliente", function (req, res) {
         html += "<p>Filme não especificado</p>\n";
         html += footer;
         res.send(html);
-    }*/
+    }
 });
 
 
@@ -1521,6 +1522,7 @@ servidor.get("/adiciona_cliente", function (req, res) {
         var html = "";
         html += head;
         html += criar_cliente;
+        res.send(html);
 
     } else {
         var html = "";
@@ -1529,7 +1531,7 @@ servidor.get("/adiciona_cliente", function (req, res) {
         html += footer;
         res.send(html);
     }
-
+    
 
 });
 
@@ -2584,7 +2586,7 @@ servidor.post("/processa_seleciona_filme", urlEncodedParser, function (req, res)
                         html += "<tr>\n";
                         html += "</tr>\n";
                         html += "<tr>\n";
-                        html += "<td><label>Sessão</label></td>\n";
+                        html += "<th>Sessão</th>\n";
                         html += "</tr>\n";
                         html += "<tr>\n";
                         for (var i = 0; i < result.length; i++) {
@@ -2593,10 +2595,16 @@ servidor.post("/processa_seleciona_filme", urlEncodedParser, function (req, res)
                             var minuts = String(result[i].data_hora_sessao.getMinutes()).padStart(2, '0');
                             var hour = String(result[i].data_hora_sessao.getHours()).padStart(2, '0');
 
-                            html += "<tr><td><input type='radio' name='id_sessao' value='" + result[i].id_sessao + "'>" + result[i].data_hora_sessao.getDate() + "/" + mes + "/" + result[i].data_hora_sessao.getFullYear() + "  |  " + hour + "h:" + minuts + "</td><tr>\n";
+                            html += "<tr><td><input class='radio-id_sessao' type='radio' name='id_sessao' id='" + result[i].id_sessao + "' value='" + result[i].id_sessao + "'>\n";
+                            html += "<label for='" + result[i].id_sessao + "'>" + result[i].data_hora_sessao.getDate() + "/" + mes + "/" + result[i].data_hora_sessao.getFullYear() + "  |  " + hour + "h:" + minuts + " min</label></td><tr>";
                         }
-                        html += "<tr><td> <span class='password_alert' id='valida_sessao'> </span></td></tr>\n"
-                        html += "<td colspan='2'><input type='button' onclick='if (validate_sessao()) { document.getElementById(\"seleciona_sessao\").submit();}' value='Selecionar sessao'></td>\n";
+
+                        html += "<tr><td> <span class='password_alert' id='valida_sessao'> </span></td></tr>\n";
+                        html += "<td><input type='hidden' name='id_venda' value='" + req.body.id_venda + "'></td>\n";
+                        html += "<td><input type='hidden' name='id_filme' value='" + req.body.id_filme + "'></td>\n";
+                        /*html += "<td colspan='2'><input type='button' onclick='if (validate_sessao()) { document.getElementById(\"seleciona_sessao\").submit();}' value='Selecionar sessao'></td>\n";
+                        html += "</tr>\n";*/
+                        html += "<td colspan='2'><input type='submit' value='Selecionar sessao'></td>\n";
                         html += "</tr>\n";
                         html += "</table>\n";
                         html += "</form>\n";
@@ -2634,4 +2642,311 @@ servidor.post("/processa_seleciona_filme", urlEncodedParser, function (req, res)
         res.send(html);
     }
 
+});
+
+
+
+/*___________________________Quarto passo de vender um bilhete___________________________*/
+/*_____________________________________Adiciona bilhete__________________________________*/
+/*______________________________PASSO FINAL DE FORMULÁRIOS_______________________________*/
+/*Guardar em input type='hidden' o id da sessão escolhido no formulário anterior para submeter e ser processado no insere bilhete*/
+servidor.post("/processa_seleciona_sessao", urlEncodedParser, function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        content = fs.readFileSync("public/home.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
+        error_page = fs.readFileSync("public/error.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    if (req.session.id_funcionario) {
+        if (req.body.id_sessao && req.body.id_venda && req.body.id_filme) {
+            var query = "SELECT * FROM Sessoes INNER JOIN Filmes USING(id_filme) WHERE id_filme= " + req.body.id_filme + ";";
+            //query += "SELECT * FROM Assentos INNER JOIN USING(id_sala) Salas INNER JOIN Sessoes USING(id_sessao)";
+            query += "SELECT * FROM Assentos JOIN Salas USING(id_sala) INNER JOIN Sessoes USING(id_sala) WHERE id_sessao= " + req.body.id_sessao + ";";
+            //res.send(query);
+            console.log(query);
+            console.log(req.body);
+
+
+            pool.query(query, function (err, result, fields) {
+                var html = "";
+                html += head;
+                html += "<h1>Venda de Bilhete</h1>\n";
+                if (!err) {
+                    console.log(err);
+                    if (result) {
+                        console.log(result);
+                        html += "<div class='adiciona-filme'>\n";
+                        html += "<div class='adiciona-filme-item1'>\n";
+
+                        for (var i = 0; i < 1; i++) {
+                            html += "<h2>" + result[0][i].titulo_filme + "</h2>";
+                            html += "<img class='poster_filme' src='recursos/posteres_filmes/" + result[0][i].poster_filme + "' alt='Poster do filme'>";
+                        }
+                        //por editar
+                        html += "</div>\n";
+                        html += "<form name ='seleciona_assento' id='seleciona_sessao' action='processa_seleciona_assento' method='post'>\n";
+                        html += "<table class='table-adiciona-filme'>\n";
+                        html += "<tr>\n";
+                        html += "</tr>\n";
+                        html += "<tr>\n";
+                        html += "<td><label>Assento</label></td>\n";
+                        html += "</tr>\n";
+                        html += "<tr>\n";
+                        html += "<div class='container-assento'>\n";
+                        for (var i = 0; i < result[1].length; i++) {
+                            html += "<div class = 'assento'><td><input class='radio-id_sessao' type='radio' name='id_assento' id='" + result[1][i].id_assento + "' value='" + result[1][i].id_assento + "'>\n";
+                            html += "<label for='" + result[1][i].id_assento + "'></label><i class='fa-sharp fa-solid fa-loveseat'></i></td><tr></div>";
+                        }
+                        html += "</div>\n";
+                        html += "<tr><td> <span class='password_alert' id='valida_sessao'> </span></td></tr>\n";
+                        html += "<td><input type='hidden' name='id_venda' value='" + req.body.id_venda + "'></td>\n";
+                        html += "<td><input type='hidden' name='id_sessao' value='" + req.body.id_sessao + "'></td>\n";
+                        html += "<td colspan='2'><input type='submit' value='Selecionar sessao'></td>\n";
+                        html += "</tr>\n";
+                        html += "</table>\n";
+                        html += "</form>\n";
+                        html += "</div>\n";
+                        html += script;
+                    }
+                    else {
+                        html += "<p>Não foi possivel há sessoes para esse filme</p>\n";
+                    }
+                }
+                else {
+                    html += error_page;
+                    console.log(err);
+                }
+                html += footer;
+                res.send(html);
+            });
+
+
+        }
+        else {
+            var html = "";
+            html += head;
+            html += "<h2>Erro ao Adicionar Bilhete</h2>\n";
+            html += "<p>Dados incompletos, tenta de novo</p>\n";
+            html += error_page;
+            console.log(req.body);
+            html += footer;
+            res.send(html);
+        }
+    } else {
+        var html = "";
+        html += head;
+        html += nao_autenticado;
+        html += footer;
+        res.send(html);
+    }
+
+});
+
+
+
+/*_____________________________________Adiciona bilhete___________________________________*/
+/*_______________________________Processa Adiciona bilhete________________________________*/
+servidor.post("/processa_seleciona_assento", urlEncodedParser, function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        content = fs.readFileSync("public/home.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    if (req.session.id_funcionario) {
+        if (req.body.id_sessao && req.body.id_venda && req.body.id_assento) {
+            var query = "INSERT INTO Bilhetes VALUES (null, '" + req.body.id_sessao + "', '" + req.body.id_venda + "', '" + req.body.id_assento + "'); SELECT * FROM Clientes INNER JOIN Vendas USING(id_cliente) INNER JOIN Bilhetes USING(id_venda) INNER JOIN Assentos USING(id_assento) INNER JOIN Salas USING(id_sala) INNER JOIN Sessoes USING(id_sala) INNER JOIN Filmes USING(id_filme) WHERE id_bilhete = LAST_INSERT_ID();";
+            //query += "SELECT * FROM Clientes INNER JOIN Vendas USING(id_cliente) INNER JOIN Bilhetes USING(id_venda) INNER JOIN Assentos USING(id_assento) INNER JOIN Salas USING(id_sala) INNER JOIN Sessoes USING(id_sala) INNER JOIN Filmes USING(id_filme) WHERE id_bilhete = LAST_INSERT_ID();";
+            //res.send(query);
+            console.log(query);
+
+            pool.query(query, function (err, result, fields) {
+                var html = "";
+                html += head;
+                html += "<h2>Vende bilhete</h2>\n";
+                if (!err) {
+                    console.log(err);
+                    if (result) {
+                        console.log(result[1]);
+                        html += "<h2>Bilhete adicionado</h2>\n";
+                        html += "<tr><td>id do filme</td><td>"+result.id_filme+"</td><tr>\n";
+                        html += "<tr><td>nome do filme</td><td>"+result.nome_filme+"</td><tr>\n";
+                        html += "<tr><td>Data e hora da sessao</td><td>"+result.data_hora_sessao+"</td><tr>\n";
+                    }
+                    else {
+                        html += error_page;
+                        html += "<p>Não foi possivel aceder aos dados do formulário</p>\n";
+                    }
+                }
+                else {
+                    html += error_page;
+                    console.log(err);
+                }
+                html += footer;
+                res.send(html);
+            });
+
+
+        }
+        else {
+            var html = "";
+            html += head;
+            html += error_page;
+            html += "<h2>Erro ao Adicionar bilhete</h2>\n";
+            html += "<p>Dados incompletos, tenta de novo</p>\n";
+            html += footer;
+            console.log(req.body);
+            console.log(query);
+            res.send(html);
+        }
+    } else {
+        var html = "";
+        html += head;
+        html += nao_autenticado;
+        html += footer;
+        res.send(html);
+    }
+
+});
+
+
+
+/*========================================================================================================*/
+/*========================================================================================================*/
+/*=================================================Salas==================================================*/
+/*========================================================================================================*/
+/*========================================================================================================*/
+servidor.get("/salas", urlEncodedParser, function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        content = fs.readFileSync("public/home.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    sessao = req.session.id_funcionario;
+
+    if (req.session.id_funcionario) {
+        var query = "SELECT * FROM Salas WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "');";
+        //res.send(query);
+        console.log(query);
+
+        pool.query(query, function (err, result, fields) {
+            var html = "";
+            html += head;
+            html += "<h1>Insere Assentos às salas</h1>\n";
+            if (!err) {
+                console.log(err);
+                if (result) {
+                    console.log(result);
+                    html += "<div class='adiciona-filme'>\n";
+                    html += "<form name ='insere_assentos' id='seleciona_sessao' action='processa_insere_assentos' method='post'>\n";
+                    html += "<table class='table-adiciona-filme'>\n";
+                    html += "<tr>\n";
+                    html += "</tr>\n";
+                    html += "<tr>\n";
+                    html += "<th>Sessão</th>\n";
+                    html += "</tr>\n";
+                    html += "<tr>\n";
+                    html += "<tr><th>Sala</th></tr>"
+                    html += "<td><select name='id_sala' id='id_sala' title='id_sala'>\n";
+                    html += "<option disabled selected value> -- Seleciona uma sala -- </option>\n";
+                    for (var i = 0; i < result.length; i++) {
+                        html += "<option id='" + result[i].id_sala + "' value='" + result[i].id_sala + "' name='" + result[i].id_sala + "''>" + (result[i].id_sala - result[i].id_sala + i + 1) + "</option>\n";// Utiliza-se: (result[1][i].id_sala - result[1][i].id_sala + i) para que o numero da sala apareça sempre a partir do 1
+                    }
+                    html += "</select>\n";
+                    html += "<tr><td><input class='radio-id_sessao' type='number' name='n_assentos' id='n_assentos' value='n_assentos'>\n";
+                    html += "<label for='n_assentos'>Numero de assentos</label></td><tr>";
+
+                    html += "<tr><td> <span class='password_alert' id='valida_sessao'> </span></td></tr>\n"
+                    html += "<td colspan='2'><input type='submit' value='Adiciona Assentos'></td>\n";
+                    html += "</tr>\n";
+                    html += "</table>\n";
+                    html += "</form>\n";
+                    html += "</div>\n";
+                }
+                else {
+                    html += "<p>Não foi possivel há sessoes para esse filme</p>\n";
+                }
+            }
+            else {
+                html += error_page;
+                console.log(err);
+            }
+            html += footer;
+            res.send(html);
+        });
+
+    } else {
+        var html = "";
+        html += head;
+        html += nao_autenticado;
+        html += footer;
+        res.send(html);
+    }
+
+});
+
+/*_____________________________________INSERIR Assentos__________________________________*/
+/*_______________________________________NOT FOR USER____________________________________*/
+/*______________________________Utilizador nunca chega a este código_____________________*/
+/*Guardar em input type='hidden' o id da sessão escolhido no formulário anterior para submeter e ser processado no insere bilhete*/
+servidor.post("/processa_insere_assentos", urlEncodedParser, function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        content = fs.readFileSync("public/home.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    var html = "";
+    html += head;
+    if (req.session.id_funcionario) {
+        if (req.body.n_assentos && req.body.id_sala) {
+            var query = "Insert into Assentos values (null, '" + req.body.id_sala + "');";
+            //res.send(query);
+            console.log(query);
+
+            html+="<div class = 'container-assento'>";
+
+            for (var i = 0; i < req.body.n_assentos; i++) {
+                pool.query(query, function (err, result, fields) {
+                    html += "<h1>Venda de Bilhete</h1>\n";
+                    if (!err) {
+                    }
+                    else {
+                        html += "<p>Não foi possivel adicionar assentos</p>\n";
+                        html += error_page;
+                        console.log(err);
+                    }
+
+                });
+                html += "<div class = 'assento'><i class='fa-solid fa-loveseat'></i></td><tr></div>";
+                
+            }
+            html += "</div>"
+            html += "<h2>Foram Adicionados <b>" + req.body.n_assentos + "</b> assentos à sala <b>" + req.body.id_sala + "</b></h2>";
+            html += footer;
+            res.send(html);
+        }
+    } else {
+        html += nao_autenticado;
+        html += footer;
+        res.send(html);
+    }
 });
