@@ -12,6 +12,12 @@ body{
     margin: auto;
     justify-content: center;
     padding: 5em;
+    max-width: 100%;
+    flex-direction: column;
+}
+
+.home-consultas-container a{
+    margin-bottom: 10px;
 }
 
 .home_consultas {
@@ -156,6 +162,7 @@ body{
     border-style: solid;
     border-width:2px;
     border-color:#0a0a0a white white #0a0a0a;
+    background-color: #FFFFFF;
 
     height: 2em;
     width: 15em;
@@ -358,6 +365,7 @@ PAGINA CARTAZ
 .container-cartaz-filme{
     flex-direction: row;
     flex-wrap: wrap;
+    margin-right: 3em;
 }
 
 /*botoes*/
@@ -382,4 +390,8 @@ a:focus {
 a:hover{
     /*background-color: #394dcd;*/
     color: #394dcd;
+}
+
+input[type=button] {
+    padding-bottom: 2em;
 }

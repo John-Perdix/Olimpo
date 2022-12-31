@@ -111,11 +111,37 @@ servidor.get("/", function (req, res) {
 
     var html = "";
     html += head;
-    html += content;
-    html += consultas;
 
-    html += footer;
-    res.send(html);
+    //var query = "SELECT nome_funcionario fotografia_funcionario FROM Funcionarios WHERE id_funcionario = '" + req.session.id_funcionario + "';";
+
+    var query = "SELECT id_funcionario, nome_funcionario, nif_funcionario, cc_funcionario, dn_funcionario, data_entrada_funcionario, fotografia_funcionario, password_funcionario FROM Funcionarios INNER JOIN Cinemas USING(id_cinema) WHERE id_funcionario = '" + req.session.id_funcionario + "';"
+    //res.send(query);
+    pool.query(query, function (err, result, fields) {
+
+        if (!err) {
+
+            if (result && result.length > 0) {
+                if (req.session.id_funcionario) {
+                    html += "<div class='container-filmes-item1'>";
+                    for (var i = 0; i < result.length; i++) {
+                    html += "<h2>Funcionario: " + result[i].nome_funcionario + "</h2>\n";
+                    html += "<img class='fotografia_funcionario' src='recursos/fotografias_funcionarios/" + result[i].fotografia_funcionario + "' alt='fotografia do funcionario'>";
+                    }
+                    html += "</div>";
+                }
+            }
+        }else{
+            html += head;
+            html += content;
+            html += consultas;
+            html += footer;
+            res.send(html);
+        }
+        html += content;
+        html += consultas;
+        html += footer;
+        res.send(html);
+    });
 });
 
 
@@ -537,14 +563,16 @@ servidor.post("/processa_adiciona_diretor", function (req, res) {
 /*=================================================FILMES=================================================*/
 /*========================================================================================================*/
 /*========================================================================================================*/
-/*________________________________Consulta de Filmes________________________________*/
+/*____________________________________________Consulta de Filmes__________________________________________*/
 servidor.get("/filmes", function (req, res) {
     try {
         head = fs.readFileSync("public/head.html", "utf-8");
         footer = fs.readFileSync("public/footer.html", "utf-8");
         content = fs.readFileSync("public/home.html", "utf-8");
         error = fs.readFileSync("public/error.html", "utf-8");
-        adiciona_filme = fs.readFileSync("public/adiciona_filme.html", "utf-8");
+        adiciona_filme1 = fs.readFileSync("public/adiciona_filme1.html", "utf-8");
+        adiciona_filme2 = fs.readFileSync("public/adiciona_filme2.html", "utf-8");
+        adiciona_filme3 = fs.readFileSync("public/adiciona_filme3.html", "utf-8");
     }
     catch (error) {
         console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
@@ -553,7 +581,7 @@ servidor.get("/filmes", function (req, res) {
     var html = "";
     html += head;
 
-    var query = "SELECT titulo_filme, ano_filme, classificacao_filme, runtime_filme, premios_filme, poster_filme, nome_diretor, nome_genero FROM Filmes INNER JOIN Diretores USING(id_diretor) INNER JOIN Generos USING(id_genero);";
+    var query = "SELECT id_filme, titulo_filme, ano_filme, classificacao_filme, runtime_filme, premios_filme, poster_filme, id_genero, nome_genero, id_diretor, nome_diretor FROM Filmes INNER JOIN Diretores USING(id_diretor) INNER JOIN Generos USING(id_genero); SELECT id_genero, nome_genero FROM Generos; SELECT id_diretor, nome_diretor FROM Diretores;";
     //res.send(query);
     pool.query(query, function (err, result, fields) {
 
@@ -563,23 +591,53 @@ servidor.get("/filmes", function (req, res) {
             html += "<div class='container-filmes-item1'>";
             if (result && result.length > 0) {
                 html += "<table class='tabela'>\n";
-                html += "<tr><th>Titulo do Filme</th><th>Diretor</th><th>Ano</th><th>Duração</th><th>Classificação</th><th>Premio</th><th>Género</th><th>Poster</th></tr>\n";
-                for (var i = 0; i < result.length; i++) {
-                    console.log("os resultados são maiores que 0");
-                    html += "<tr><td>" + result[i].titulo_filme + "</td><td>" + result[i].nome_diretor + "</td><td>" + result[i].ano_filme + "</td><td>" + result[i].runtime_filme + " min.</td><td>" + result[i].classificacao_filme + "</td><td>" + result[i].premios_filme + "</td><td>" + result[i].nome_genero + "</td><td><img class='poster_filme' src='recursos/posteres_filmes/" + result[i].poster_filme + "' alt='Poster do filme'></td> <td> <a href='altera_filme?id_filme=" + result[i].id_filme + "'>&#9998;</a> </td> <td> <a href='confirma_apaga_filme?id_filme=" + result[i].id_filme + "'>&#10007;</a> </td> </tr>\n";
+                html += "<tr><th>Titulo do Filme</th><th>Diretor</th><th>Ano</th><th>Duração</th><th>Classificação</th><th>Premio</th><th>Poster</th><th>Género</th></tr>\n";
+                for (var i = 0; i < result[0].length; i++) {
+                    html += "<tr><td>" + result[0][i].titulo_filme + "</td><td>" + result[0][i].nome_diretor + "</td><td>" + result[0][i].ano_filme + "</td><td>" + result[0][i].runtime_filme + " min.</td><td>" + result[0][i].classificacao_filme + "</td><td>" + result[0][i].premios_filme + "</td><td><img class='poster_filme' src='recursos/posteres_filmes/" + result[0][i].poster_filme + "' alt='Poster do filme'></td> <td>" + result[0][i].nome_genero + "</td>";
+                    if (req.session.id_funcionario) {
+                        html += "<td> <a href='altera_filme?id_filme=" + result[0][i].id_filme + "'>&#9998;</a> </td> <td> <a href='confirma_apaga_filme?id_filme=" + result[0][i].id_filme + "'>&#10007;</a> </td> </tr>\n";
+                    }
                 }
                 html += "</table>\n";
                 html += "</div>"
             }
+
             else {
                 html += "<p>Não há filmes.</p>\n";
             }
+
+            //============Consulta de Géneros============
+            if (result[1] && result[1].length > 0) {
+                html += adiciona_filme1;
+                for (var i = 0; i < result[1].length; i++) {
+                    html += "<option value='" + result[1][i].id_genero + "' name='" + result[1][i].id_genero + "'>" + result[1][i].nome_genero + "</option>";
+                }
+                html += "</select></td>";
+                html += "<tr><td> <span class='password_alert' id='valida_genero'> </span></td></tr>";
+            } else {
+                html += "<p>Não há Géneros.</p>\n";
+            }
+
+            //============Consulta de Diretores============
+            if (result[2] && result[2].length > 0) {
+                html += adiciona_filme2;
+                for (var i = 0; i < result[2].length; i++) {
+                    html += "<option value='" + result[2][i].id_diretor + "' name='" + result[2][i].id_diretor + "'>" + result[2][i].nome_diretor + "</option>";
+                }
+                html += "<tr><td> <span class='password_alert' id='valida_diretor'> </span></td></tr>";
+                html += "</select></td>";
+                console.log("Diretor" + result[2]);
+            } else {
+                html += "<p>Não há Géneros.</p>\n";
+            }
+
+            html += adiciona_filme3;
+
         }
         else {
             html += error;
         }
         html += "<div class='container-filmes-item2'>";
-        html += adiciona_filme;
         html += "</div>";
         html += "</div>";
         html += footer;
@@ -587,9 +645,8 @@ servidor.get("/filmes", function (req, res) {
     });
 });
 
-
 /*________________________________Adiciona Filmes________________________________*/
-servidor.get("/adiciona_filme", function (req, res) {
+/*servidor.get("/adiciona_filme", function (req, res) {
     try {
         head = fs.readFileSync("public/head.html", "utf-8");
         footer = fs.readFileSync("public/footer.html", "utf-8");
@@ -598,33 +655,14 @@ servidor.get("/adiciona_filme", function (req, res) {
     catch (error) {
         console.error("Erro ao ler os ficheiros html");
     }
+ 
     var html = "";
-
-    var query = "SELECT * FROM Generos;";
-
-    pool.query(query, function (err, result, fields) {
-        if (!err) {
-            html += head;
-
-            //=============Consulta dos Géneros=============
-            if (result[0] && result[0].length > 0) {
-                html += adiciona_filme;
-                for (var i = 0; i < result[0].length; i++) {
-                    html += "<option value='" + result[0][i].id_genero + "' name='" + result[0][i].id_genero + "'>" + result[0][i].nome_genero + "</option>";
-                }
-                html += "</select></td></tr>";
-            }
-            else {
-                html += "<p>Não há filmes alugados.</p>\n";
-            }
-
-        }
-    });
-
+    html += head;
+    html += adiciona_filme;
+ 
     html += footer;
     res.send(html);
-});
-
+});*/
 /*________________________________Processa Adiciona Filmes________________________________*/
 servidor.post("/processa_adiciona_filme", function (req, res) {
     try {
@@ -635,13 +673,13 @@ servidor.post("/processa_adiciona_filme", function (req, res) {
         console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
     }
     console.log(req.body);
+    var html = "";
 
-    if (req.body.titulo_filme && req.body.ano_filme && req.body.classificacao_filme && req.body.duracao_filme && req.body.premios_filme && req.body.poster_filme && req.body.id_genero && req.body.nome_genero && req.body.id_diretor) {
-        var query = "INSERT INTO Filmes VALUES (null, '" + req.body.titulo_filme + "', '" + req.body.ano_filme + "', '" + req.body.classificacao_filme + "', 'poster', '" + req.body.duracao_filme + "', '" + req.body.premios_filme + "', '" + req.body.id_genero + "', '" + req.body.id_diretor + "');";
+    if (req.body.id_genero && req.body.ano_filme && req.body.ano_filme && req.body.classificacao_filme && req.body.duracao_filme && req.body.premios_filme && req.body.id_diretor && req.body.id_genero && req.files.poster_filme) {
+        var query = "INSERT INTO Filmes VALUES (null, '" + req.body.titulo_filme + "', '" + req.body.ano_filme + "', '" + req.body.classificacao_filme + "', 'poster', '" + req.body.duracao_filme + "', '" + req.body.premios_filme + "', '" + req.body.id_diretor + "', '" + req.body.id_genero + "');";
 
         if (!req.files) {
             pool.query(query, function (err, result, fields) {
-                var html = "";
                 html += head;
                 html += "<h2>Adiciona um Filme</h2>";
                 console.log(err);
@@ -655,7 +693,8 @@ servidor.post("/processa_adiciona_filme", function (req, res) {
                     }
                 }
                 else {
-                    html += "<p>erro ao executar pedido ao servidor</p>\n";
+                    html += "<p>Erro ao executar pedido ao servidor</p>\n";
+                    console.log(err);
                 }
                 html += footer;
                 res.send(html);
@@ -666,8 +705,9 @@ servidor.post("/processa_adiciona_filme", function (req, res) {
         else if (req.files.poster_filme) {
             //novo query para fazer o update do atributo
             console.log("Estamos no req.files");
-            query2 = "UPDATE Filmes SET poster_filme = '" + req.files.fotografia_poster_filme.name + "' WHERE id_funcionario = LAST_INSERT_ID();";
-            pool.query(query2, function (err, result, fields) {
+            query += "UPDATE Filmes SET poster_filme = '" + req.files.poster_filme.name + "' WHERE id_filme = LAST_INSERT_ID();";
+            console.log(req.files.poster_filme.name);
+            pool.query(query, function (err, result, fields) {
                 var html = "";
                 html += head;
                 html += "<h2>Adicionar Filme</h2>\n";
@@ -688,12 +728,18 @@ servidor.post("/processa_adiciona_filme", function (req, res) {
                 else {
                     console.log(err);
                     html += error_page;
+                    html += footer;
+                    res.send(html);
                 }
-                html += footer;
-                res.send(html);
             });
         }
+    } else {
+        html += "<p>OS DADOS NÃO ESTÃO TODOS PREENCHIDOS</p>\n";
+        html += req.body;
+        html += footer;
+        res.send(html);
     }
+
 });
 
 
@@ -767,7 +813,8 @@ servidor.get("/processa_apaga_filme", function (req, res) {
     if (req.session.id_funcionario) {
         if (req.query.id_filme) {
             console.log("Consulta: " + req.query);
-            var query = "DELETE FROM Filmes WHERE id_filme = " + mysql.escape(req.query.id_filme) + ";";
+            //var query = "SELECT * FROM Filmes INNER JOIN Alugueres USING(id_filme) AS apaga_filme_aluguer ; DELETE FROM apaga_filme_aluguer WHERE id_filme = " + mysql.escape(req.query.id_filme) + ";";
+            var query = "DELETE Filmes, Alugueres FROM Filmes INNER JOIN Alugueres WHERE Filmes.id_filme=Alugueres.id_filme AND Filmes.id_filme = " + mysql.escape(req.query.id_filme) + ";";
             pool.query(query, function (err, result, fields) {
                 var html = "";
                 html += head;
@@ -815,6 +862,9 @@ servidor.get("/altera_filme", function (req, res) {
         head = fs.readFileSync("public/head.html", "utf-8");
         footer = fs.readFileSync("public/footer.html", "utf-8");
         error = fs.readFileSync("public/error.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
+        altera_filme1 = fs.readFileSync("public/altera_filme1.html", "utf-8");
+        altera_filme2 = fs.readFileSync("public/altera_filme2.html", "utf-8");
     }
     catch (error) {
         console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
@@ -824,30 +874,62 @@ servidor.get("/altera_filme", function (req, res) {
     html += head;
 
     if (req.session.id_funcionario) {
-        var query = "SELECT id_filme, titulo_filme, ano_filme, classificacao_filme, genero_filme, runtime_filme, premios_filme  FROM Filmes WHERE id_filme = " + req.query.id_filme + ";";
+        var query = "SELECT * FROM Filmes WHERE id_filme = " + req.query.id_filme + "; SELECT id_genero, nome_genero FROM Generos; SELECT id_diretor, nome_diretor FROM Diretores";
         //res.send(query);
         pool.query(query, function (err, result, fields) {
             html += "<h2>Altera Filme</h2>\n";
             if (!err) {
-                if (result && result.length == 1) {
-                    html += "<form name='form_altera_filme' method='post' action='processa_altera_filme'>\n";
-                    html += "<input type='hidden' value='" + result[0].id_filme + "' name='id_filme'>\n";
-                    html += "<table>\n";
-                    html += "<tr><td>ID:</td><td><label>" + result[0].id_filme + "</label></td></tr>"
-                    html += "<tr><td>Título:</td><td><input type='text' name='titulo_filme' placeholder='Insira o nome do Filme' value='" + result[0].titulo_filme + "'></td></tr>\n";
-                    html += "<tr><td>Ano de Lançamento:</td><td><input type='number' name='ano_filme' placeholder='Insira o ano de Lançamento' pattern='[0-9]{4}' value='" + result[0].ano_filme + "'></td></tr>\n";
-                    html += "<tr><td>Classificação:</td><td><input type='text' name='classificacao_filme' placeholder='Insira a classificação do IMDB' value='" + result[0].classificacao_filme + "'></td></tr>\n";
-                    html += "<tr><td>Género:</td><td><input type='text' name='genero_filme' placeholder:'Insira o Género do Filme' value='" + result[0].genero_filme + "'></td></tr>\n";
-                    html += "<tr><td>Duração:</td><td><input type='number' name='runtime_filme' step='.01' placeholder:'Insira a Duração do Filme' value='" + result[0].runtime_filme + "'></td></tr>\n";
-                    html += "<tr><td>Prémios:</td><td><input type='text' name='premios_filme' placeholder:'Insira o melhor prémio atribuído' value='" + result[0].premios_filme + "'></td></tr>\n";
+                if (result[0] && result[0].length == 1) {
+                    for (var i = 0; i < result[0].length; i++) {
+                        html += "<form name='form_altera_filme' method='post' action='processa_altera_filme'>\n";
+                        html += "<input type='hidden' value='" + result[0][i].id_filme + "' name='id_filme'>\n";
+                        html += "<table>\n";
+                        html += "<tr><td>ID:</td><td><label>" + result[0][i].id_filme + "</label></td></tr>"
+                        html += "<tr><td>Título:</td><td><input type='text' name='titulo_filme' placeholder='Insira o nome do Filme' value='" + result[0][i].titulo_filme + "'></td></tr>\n";
+                        html += "<tr><td>Ano de Lançamento:</td><td><input type='number' name='ano_filme' placeholder='Insira o ano de Lançamento' pattern='[0-9]{4}' value='" + result[0][i].ano_filme + "'></td></tr>\n";
+                        html += "<tr><td>Classificação:</td><td><input type='text' name='classificacao_filme' placeholder='Insira a classificação do IMDB' value='" + result[0][i].classificacao_filme + "'></td></tr>\n";
+
+                        html += "<tr><td>Duração:</td><td><input type='number' name='runtime_filme' step='.01' placeholder:'Insira a Duração do Filme' value='" + result[0][i].runtime_filme + "'></td></tr>\n";
+                        html += "<tr><td>Prémios:</td><td><input type='text' name='premios_filme' placeholder:'Insira o melhor prémio atribuído' value='" + result[0][i].premios_filme + "'></td></tr>\n";
+                    }
+
+                    //============Géneros============
+                    if (result[1] && result[1].length > 0) {
+                        html += altera_filme1;
+                        for (var i = 0; i < result[1].length; i++) {
+                            html += "<option value='" + result[1][i].id_genero + "' name='" + result[1][i].id_genero + "' selected>" + result[1][i].nome_genero + "</option>";
+                        }
+                        html += "</select></td>";
+                    } else {
+                        html += "<p>Não há Géneros.</p>\n";
+                    }
+
+                    //============Diretores============
+                    if (result[2] && result[2].length > 0) {
+                        html += altera_filme2;
+                        //Aqui dar display ao genero que está definido para aqule filme
+                        /*for (var i = 0; i < result[0].length; i++) {
+                        html += "<option selected value='" + result[0][i].id_diretor + "' name='" + result[0][i].id_diretor + "' >" + result[0][i].nome_diretor + "</option>";
+                        }*/
+                        //opstions de todos os generos que não pertencem ao filme
+                        for (var i = 0; i < result[2].length; i++) {
+                            html += "<option value='" + result[2][i].id_diretor + "' name='" + result[2][i].id_diretor + "' >" + result[2][i].nome_diretor + "</option>";
+                        }
+                        html += "</select></td>";
+                    } else {
+                        html += "<p>Não há Diretores.</p>\n";
+                    }
 
                     html += "<tr><td colspan='2'><input type='submit' value='Alterar'>&nbsp;</td></tr>\n";
                     html += "</table>\n";
                     html += "</form>\n";
+
                 }
                 else {
                     html += "<p>Erro ao executar pedido ao servidor</p>\n";
+                    console.log(result[0]);
                 }
+
                 html += footer;
                 res.send(html);
             }
@@ -881,8 +963,8 @@ servidor.post("/processa_altera_filme", function (req, res) {
     }
 
     if (req.session.id_funcionario) {
-        if (req.body.id_filme && req.body.titulo_filme && req.body.ano_filme && req.body.classificacao_filme && req.body.genero_filme && req.body.runtime_filme && req.body.premios_filme) {
-            var query = "UPDATE Filmes SET titulo_filme = " + mysql.escape(req.body.titulo_filme) + ", ano_filme = " + mysql.escape(req.body.ano_filme) + ", classificacao_filme = " + mysql.escape(req.body.classificacao_filme) + ", genero_filme = " + mysql.escape(req.body.genero_filme) + ", runtime_filme = " + mysql.escape(req.body.runtime_filme) + ", premios_filme = " + mysql.escape(req.body.premios_filme) + " WHERE id_filme = " + req.body.id_filme + ";";
+        if (req.body.id_filme && req.body.titulo_filme && req.body.ano_filme && req.body.classificacao_filme && req.body.id_genero && req.body.runtime_filme && req.body.premios_filme) {
+            var query = "UPDATE Filmes SET titulo_filme = " + mysql.escape(req.body.titulo_filme) + ", ano_filme = " + mysql.escape(req.body.ano_filme) + ", classificacao_filme = " + mysql.escape(req.body.classificacao_filme) + ", runtime_filme = " + mysql.escape(req.body.runtime_filme) + ", premios_filme = " + mysql.escape(req.body.premios_filme) + ", id_genero = " + mysql.escape(req.body.id_genero) + ", id_diretor = " + mysql.escape(req.body.id_diretor) + " WHERE id_filme = " + req.body.id_filme + ";";
             pool.query(query, function (err, result, fields) {
                 var html = "";
                 html += head;
@@ -890,7 +972,7 @@ servidor.post("/processa_altera_filme", function (req, res) {
                 if (!err) {
                     html += "<p>\n";
                     if (result && result.affectedRows > 0) {
-                        html += "Filme alterado com sucesso para: '" + req.body.titulo_filme + " / " + req.body.ano_filme + " / " + req.body.classificacao_filme + " / " + req.body.genero_filme + " / " + req.body.runtime_filme + " / " + req.body.premios_filme + "'\n";
+                        html += "Filme alterado com sucesso para: '" + req.body.titulo_filme + " / " + req.body.ano_filme + " / " + req.body.classificacao_filme + " / " + req.body.nome_genero + " / " + req.body.runtime_filme + " / " + req.body.premios_filme + "'\n";
                     } else {
                         html += "Falha ao alterar Filme\n";
                     }
@@ -899,7 +981,7 @@ servidor.post("/processa_altera_filme", function (req, res) {
                 else {
                     html += "<p>Erro ao executar pedido ao servidor</p>\n";
                     console.log(err);
-                    console.log(err);
+                    console.log(req.body);
                 }
                 html += footer;
                 res.send(html);
@@ -987,7 +1069,7 @@ servidor.get("/alugueres", function (req, res) {
                 html += "<h2>Distribuidoras</h2>";
                 for (var i = 0; i < result[0].length; i++) {
                     html += "<div class='container-distribuidora'><div class='barra'></div><table><tr><td>" + result[0][i].id_distribuidora + "</td></tr><tr><td>" + result[0][i].nome_distribuidora + "</td></tr><tr><td>" + result[0][i].morada_distribuidora + "</td></tr><tr><td>" + result[0][i].email_distribuidora + "</td></tr><tr><td>" + result[0][i].telefone_distribuidora + "</td></tr></table></div>\n";
-                }
+                } html += sem_distribuidoras;
                 html += "</div>\n";
                 html += "</div>\n";
             }
@@ -1013,7 +1095,6 @@ servidor.get("/alugueres", function (req, res) {
                     //Definição da data com nome do mês
                     html += "<tr><td>" + result[1][i].titulo_filme + "</td><td>" + result[1][i].id_filme + "</td><td>" + result[1][i].id_aluguer + "</td><td>" + result[1][i].data_inicio_aluguer.getDate() + "/" + inicio + "/" + result[1][i].data_inicio_aluguer.getFullYear() + "</td><td>" + result[1][i].data_fim_aluguer.getDate() + "/" + fim + "/" + result[1][i].data_fim_aluguer.getFullYear() + "</td><td><i class='fa-solid fa-circle-check ativo'></i></td></tr>\n";
                 }
-                html += "</table>"
             } else {
                 html += "<p>Não há filmes alugados.</p>\n";
             }
@@ -1037,33 +1118,36 @@ servidor.get("/alugueres", function (req, res) {
 
             //======================================
             //consulta dos filmes para o form select
-            if (result[3] && result[3].length > 0) {
-                html += adiciona_aluguer1;
-                for (var i = 0; i < result[3].length; i++) {
-                    html += "<option value='" + result[3][i].id_filme + "' name='" + result[3][i].id_filme + "'>" + result[3][i].titulo_filme + "</option>";
+            if (req.session.id_funcionario) {
+                if (result[3] && result[3].length > 0) {
+                    html += adiciona_aluguer1;
+                    for (var i = 0; i < result[3].length; i++) {
+                        html += "<option value='" + result[3][i].id_filme + "' name='" + result[3][i].id_filme + "'>" + result[3][i].titulo_filme + "</option>";
+                    }
+                    html += "</select></td>";
                 }
-                html += "</select></td>";
-            }
-            else {
-                html += "<p>Não há filmes alugados.</p>\n";
+                else {
+                    html += "<p>Não há filmes alugados.</p>\n";
+                }
+
+                //==============================================
+                //consulta dos distribuidoras para o form select
+                if (result[4] && result[4].length > 0) {
+                    html += "<td><select name='id_distribuidora' id='id_distribuidora' title='id_distribuidora'>";
+                    html += "<option disabled selected value> -- Seleciona uma distribuidora -- </option>";
+                    for (var i = 0; i < result[4].length; i++) {
+                        console.log("os resultados das distrubuiodoras são maoires que 0");
+                        html += "<option value='" + result[4][i].id_distribuidora + "' name='" + result[4][i].id_distribuidora + "'>" + result[4][i].nome_distribuidora + "</option>";
+                    }
+                    html += "</select></td>";
+                }
+                else {
+                    html += "<p>Não há Distribuidoras alugados.</p>\n";
+                }
+
+                html += adiciona_aluguer2;
             }
 
-            //==============================================
-            //consulta dos distribuidoras para o form select
-            if (result[4] && result[4].length > 0) {
-                html += "<td><select name='id_distribuidora' id='id_distribuidora' title='id_distribuidora'>";
-                html += "<option disabled selected value> -- Seleciona uma distribuidora -- </option>";
-                for (var i = 0; i < result[4].length; i++) {
-                    console.log("os resultados das distrubuiodoras são maoires que 0");
-                    html += "<option value='" + result[4][i].id_distribuidora + "' name='" + result[4][i].id_distribuidora + "'>" + result[4][i].nome_distribuidora + "</option>";
-                }
-                html += "</select></td>";
-            }
-            else {
-                html += "<p>Não há Distribuidoras alugados.</p>\n";
-            }
-
-            html += adiciona_aluguer2;
         }
         else {
             var html = "";
@@ -1084,49 +1168,57 @@ servidor.post("/processa_adiciona_aluguer", function (req, res) {
         head = fs.readFileSync("public/head.html", "utf-8");
         footer = fs.readFileSync("public/footer.html", "utf-8");
         error_page = fs.readFileSync("public/error.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
     }
     catch (error) {
         console.error("Erro ao ler os ficheiros html)");
     }
     console.log(req.body);
 
-    if (req.body.id_filme && req.body.id_distribuidora && req.body.data_inicio_aluguer && req.body.data_fim_aluguer) {
-        var query = "INSERT INTO Alugueres VALUES (null, '" + req.body.id_filme + "', '" + req.body.id_distribuidora + "', '" + req.body.data_inicio_aluguer + "', '" + req.body.data_fim_aluguer + "');\n";
-        //query += "SELECT titulo_filme FROM Filmes INNER JOIN Alugueres USING(id_filme) WHERE id_aluguer =  LAST INSERTED id_alugueres;";
+    if (req.session.id_funcionario) {
+        if (req.body.id_filme && req.body.id_distribuidora && req.body.data_inicio_aluguer && req.body.data_fim_aluguer) {
+            var query = "INSERT INTO Alugueres VALUES (null, '" + req.body.id_filme + "', '" + req.body.id_distribuidora + "', '" + req.body.data_inicio_aluguer + "', '" + req.body.data_fim_aluguer + "');\n";
+            //query += "SELECT titulo_filme FROM Filmes INNER JOIN Alugueres USING(id_filme) WHERE id_aluguer =  LAST INSERTED id_alugueres;";
 
-        pool.query(query, function (err, result, fields) {
-            var html = "";
-            html += head;
-            html += "<h2>Adicionar um aluguer</h2>";
-            console.log(err);
-            console.log(result);
+            pool.query(query, function (err, result, fields) {
+                var html = "";
+                html += head;
+                html += "<h2>Adicionar um aluguer</h2>";
+                console.log(err);
+                console.log(result);
 
-            if (!err) {
-                if (result) {
-                    /*SERÁ QUE ISTO FUNCIONA? isto fica undefined
-                    query1 = "SELECT titulo_filme FROM Filmes INNER JOIN Alugueres USING(id_filme) WHERE id_aluguer =  LAST INSERTED id_alugueres;";
-                    pool.query(query1, function (err, result, fields){
-                        if(!err){
-                            if (result){
-                            html += "<p>O aluguer do Filme '" + req.body.titulo_filme + "'foi inserido com sucesso</p>";
-                        }else{
-                            html += "<p>O filme foi adicionado com sucesso</p>";
+                if (!err) {
+                    if (result) {
+                        /*SERÁ QUE ISTO FUNCIONA? isto fica undefined
+                        query1 = "SELECT titulo_filme FROM Filmes INNER JOIN Alugueres USING(id_filme) WHERE id_aluguer =  LAST INSERTED id_alugueres;";
+                        pool.query(query1, function (err, result, fields){
+                            if(!err){
+                                if (result){
+                                html += "<p>O aluguer do Filme '" + req.body.titulo_filme + "'foi inserido com sucesso</p>";
+                            }else{
+                                html += "<p>O filme foi adicionado com sucesso</p>";
+                            }
                         }
-                    }
-                });*/
-                    html += "<p>O filme foi adicionado com sucesso</p>";
+                    });*/
+                        html += "<p>O filme foi adicionado com sucesso</p>";
 
+                    }
+                    else {
+                        html += "<p>Não foi possível inserir o aluguer do Filme '" + req.body.titulo_filme + "'</p>";
+                    }
                 }
                 else {
-                    html += "<p>Não foi possível inserir o aluguer do Filme '" + req.body.titulo_filme + "'</p>";
+                    html += error_page;
                 }
-            }
-            else {
-                html += error_page;
-            }
-            html += footer;
-            res.send(html);
-        });
+                html += footer;
+                res.send(html);
+            });
+        }
+    } else {
+        var html = "";
+        html += head;
+        html += nao_autenticado;
+        html += footer;
     }
 });
 
@@ -1683,6 +1775,7 @@ servidor.post("/processa_criar_funcionario", urlEncodedParser, function (req, re
         head = fs.readFileSync("public/head.html", "utf-8");
         footer = fs.readFileSync("public/footer.html", "utf-8");
         content = fs.readFileSync("public/home.html", "utf-8");
+        error_page = fs.readFileSync("public/error.html", "utf-8");
     }
     catch (error) {
         console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
@@ -1786,17 +1879,23 @@ servidor.get("/cartaz", function (req, res) {
         //E PASSAMOS ESSE PARAMETRO PARA O PROCESSA_ADICIONA_CARTAZ
         var sessao = req.session.id_funcionario;
 
-        var query = "SELECT id_filme, titulo_filme, poster_filme FROM Filmes INNER JOIN Cartazes_has_Filmes USING(id_filme) INNER JOIN Cartazes USING(id_cartaz); SELECT id_filme, titulo_filme FROM(SELECT id_filme, titulo_filme FROM Filmes INNER JOIN Alugueres USING(id_filme) INNER JOIN Cartazes_has_Filmes USING(id_filme) WHERE NOW() BETWEEN data_inicio_aluguer AND data_fim_aluguer) AS subconsulta WHERE id_filme NOT IN (SELECT id_filme FROM Cartazes_has_Filmes); SELECT id_cartaz FROM Cartazes INNER JOIN Cinemas USING(id_cinema) WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "');";
-        console.log(query);
+        var query = "SELECT id_filme, titulo_filme, poster_filme FROM Filmes INNER JOIN Cartazes_has_Filmes USING(id_filme) INNER JOIN Cartazes USING(id_cartaz) INNER JOIN Cinemas USING(id_cinema) WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "');\n";
+
+        /*query += "SELECT id_filme, titulo_filme FROM (SELECT id_filme, titulo_filme FROM Alugueres INNER JOIN Distribuidoras using(id_distribuidora) INNER JOIN Filmes using(id_filme) WHERE NOW() BETWEEN data_inicio_aluguer AND data_fim_aluguer) AS subconsulta WHERE id_filme NOT IN (SELECT id_filme FROM Cartazes_has_Filmes INNER JOIN Cartazes USING(id_cartaz) INNER JOIN Cinemas USING(id_cinema));";*/
+
+        query += "SELECT id_filme, titulo_filme FROM (SELECT id_filme, titulo_filme FROM Alugueres INNER JOIN Distribuidoras using(id_distribuidora) INNER JOIN Filmes using(id_filme) WHERE NOW() BETWEEN data_inicio_aluguer AND data_fim_aluguer) AS subconsulta WHERE id_filme NOT IN (SELECT id_filme FROM Cartazes_has_Filmes INNER JOIN Cartazes USING(id_cartaz) INNER JOIN Cinemas USING(id_cinema) WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "'));";
+
+        query += "SELECT id_cartaz FROM Cartazes INNER JOIN Cinemas USING(id_cinema) WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "');";
+        //console.log(query);
 
         pool.query(query, function (err, result, fields) {
             html += "<h2>Cartaz do cinema de </h2>\n";
             if (!err) {
+                html += "<div class='container-cartaz'>";
                 for (var i = 0; i < result[0].length; i++) {
-                    html += "<div class='container-cartaz'>";
-                    html += "<div class='container-cartaz-filme'><a href= '/consulta" + result[0][i].titulo_filme + "'><img src='recursos/posteres_filmes/" + result[0][i].poster_filme + "' alt='poster do filme'></a></div>";
-                    html += "</div>";
+                    html += "<div class='container-cartaz-filme'><a href= '/consulta" + result[0][i].titulo_filme + "'><img src='recursos/posteres_filmes/" + result[0][i].poster_filme + "' alt='poster do filme'></a> <a href='confirma_apaga_cartaz?id_filme=" + result[0][i].id_filme + "'>&#10007;</a> </div>";
                 }
+                html += "</div>";
 
                 html += "<div class='grid'>\n";
                 html += "<div id='child1'>\n";
@@ -1816,7 +1915,7 @@ servidor.get("/cartaz", function (req, res) {
                 html += "<option disabled selected value> -- Seleciona um filme -- </option>";
                 //Form para adicionar os filmes ao cartaz
                 for (var i = 0; i < result[1].length; i++) {
-                    html += "<option id='" + result[1][i].id_filme + "' value='" + result[1][i].id_filme + "' name='" + result[1][i].id_filme + "''>" + result[1][i].titulo_filme + "</option>";
+                    html += "<option value='" + result[1][i].id_filme + "' name='" + result[1][i].id_filme + "''>" + result[1][i].titulo_filme + "</option>";
                 }
                 html += "</select>\n";
                 //colocar input que não se pode preensher hidden or readonly
@@ -1847,6 +1946,123 @@ servidor.get("/cartaz", function (req, res) {
 
 });
 
+//Confirma Apaga Cartaz
+servidor.get("/confirma_apaga_cartaz", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        error = fs.readFileSync("public/error.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    //if (req.session.id_funcionario) {
+    if (req.query.id_filme) {
+        var query = "SELECT id_cartaz, id_filme, titulo_filme, poster_filme FROM Filmes INNER JOIN Cartazes_has_Filmes USING(id_filme) INNER JOIN Cartazes USING(id_cartaz) WHERE id_filme = " + mysql.escape(req.query.id_filme) + ";";
+        pool.query(query, function (err, result, fields) {
+            var html = "";
+            html += head;
+            html += "<h2>Apaga Cartaz</h2>\n";
+            if (!err) {
+                if (result && result.length == 1) {
+                    html += "<p> <img class='poster_filme' src='recursos/" + result[0].poster_filme + " alt='Poster do Filme'></p>"
+                    html += "<p>Tem a certeza que quer apagar o filme'" + result[0].titulo_filme + "' com o id " + result[0].id_filme + " do Cartaz?<br><a href='/processa_apaga_cartaz?id_filme=" + req.query.id_filme + "'>Sim</a><br><a href='javascript:history.back()'>Não</a></p>\n";
+                    console.log("Consulta" + result);
+
+                } else {
+                    html += "<p>Filme não identificado</p>\n";
+                    console.log("Consulta" + result);
+                }
+            }
+            else {
+                html += "<p>Erro ao executar pedido ao servidor</p>\n";
+                console.log(err);
+            }
+            html += footer;
+            res.send(html);
+        });
+    } else {
+        var html = "";
+        html += head;
+        html += "<h2>Apaga Cartaz</h2>\n";
+        html += "<p>Por favor, identifique previamente o Filme</p>\n";
+        console.log("Consulta:" + req.body);
+        html += footer;
+        res.send(html);
+    }
+    /*}
+    else {
+        var html = "";
+        html += topo;
+        html += "<h2>apaga autor</h2>\n";
+        html += "<p>funcionário não autenticado ou utilizador sem permissões</p>\n";
+        html += fundo;
+        res.send(html);
+    }*/
+});
+
+// Processa Apaga Cartaz
+servidor.get("/processa_apaga_cartaz", function (req, res) {
+    try {
+        head = fs.readFileSync("public/head_timer.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        error = fs.readFileSync("public/error.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    //if (req.session.id_funcionario) {
+    if (req.query.id_filme) {
+        console.log("Consulta: " + req.query);
+        var query = "DELETE FROM Cartazes WHERE id_cartaz = " + mysql.escape(req.query.id_cartaz) + ";";
+        console.log(req.query.id_cartaz);
+        pool.query(query, function (err, result, fields) {
+            var html = "";
+            html += head;
+            html += "<h2>Apaga Cartaz</h2>\n";
+            if (!err) {
+                html += "<p>\n";
+                if (result) {
+                    html += "Filme com o id " + req.query.id_filme + " apagado com sucesso do Cartaz.\n";
+                    console.log("Resultado:" + result);
+                } else {
+                    html += "Falha ao apagar o Filme do Cartaz.\n";
+                    console.log("Resultado:" + result);
+                }
+                html += "</p>\n";
+
+            }
+            else {
+                html += "<p>Erro ao executar pedido ao servidor</p>\n";
+                console.log(err);
+            }
+            html += footer;
+            res.send(html);
+        });
+    } else {
+        var html = "";
+        html += head;
+        html += "<h2>Apaga Cartaz</h2>\n";
+        html += "<p>" + req.query + "</p>";
+        html += "<p>Por favor, identifique previamente o Filme</p>\n";
+        html += footer;
+        res.send(html);
+    }
+    /*}
+    else {
+        var html = "";
+        html += topo;
+        html += "<h2>apaga autor</h2>\n";
+        html += "<p>funcionário não autenticado ou utilizador sem permissões</p>\n";
+        html += fundo;
+        res.send(html);
+    }*/
+});
+
+
+
 //Processa Adiciona cartaz
 servidor.post("/processa_adiciona_cartaz", urlEncodedParser, function (req, res) {
     try {
@@ -1860,7 +2076,6 @@ servidor.post("/processa_adiciona_cartaz", urlEncodedParser, function (req, res)
     }
 
     if (req.session.id_funcionario) {
-        console.log(req.body);
 
         if (req.body.id_filme && req.body.id_cartaz) {
             var query = "INSERT INTO Cartazes_has_Filmes VALUES ('" + req.body.id_cartaz + "', '" + req.body.id_filme + "');\n SELECT id_filme, titulo_filme FROM Filmes INNER JOIN Cartazes_has_Filmes USING(id_filme) WHERE id_cartaz ='" + req.body.id_cartaz + "';";
@@ -1870,7 +2085,7 @@ servidor.post("/processa_adiciona_cartaz", urlEncodedParser, function (req, res)
                 html += head_timer_cartazes;
                 html += "<h2>Adiciona filme ao cartaz</h2>\n";
                 if (!err) {
-                    if (result) {
+                    if (result[1]) {
                         html += "<p>O filme '<b>" + result[1].req.body.filme + "'</b> de id <b>" + result[1].req.body.filme + "</b> foi adicionado aos cartazes com sucesso" + "</p>\n";
                     }
                     else {
@@ -1890,7 +2105,6 @@ servidor.post("/processa_adiciona_cartaz", urlEncodedParser, function (req, res)
             html += head;
             html += "<h2>Erro ao Adicionar Filme ao cartaz</h2>\n";
             html += "<p>Dados incompletos, tenta de novo</p>\n";
-            console.log(req.body);
             html += footer;
             res.send(html);
         }
@@ -1945,22 +2159,25 @@ servidor.get("/sessoes", function (req, res) {
     var sessao = req.session.id_funcionario;
     var html = "";
     html += head;
-    var query = "SELECT * FROM Filmes INNER JOIN Sessoes USING(id_filme) INNER JOIN Bilhetes USING(id_sessao) INNER JOIN Vendas USING(id_venda) INNER JOIN Funcionarios USING(id_funcionario) WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "';)";
+    /*var query = "SELECT * FROM Filmes INNER JOIN Sessoes USING(id_filme) INNER JOIN Bilhetes USING(id_sessao) INNER JOIN Vendas USING(id_venda) INNER JOIN Funcionarios USING(id_funcionario) WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "');";*/
+    var query = "SELECT * FROM Diretores INNER JOIN Filmes USING(id_diretor) INNER JOIN Sessoes USING(id_filme) INNER JOIN Salas USING(id_sala) WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "');";
+
+
 
     pool.query(query, function (err, result, fields) {
         var html = "";
         html += head;
         html += "<h1>Sessões</h1>\n";
         if (!err) {
-            console.log(err);
             html += "<div class='container-filmes'>";
             html += "<div class='container-filmes-item1'>";
             if (result && result.length > 0) {
                 html += "<table class='tabela'>\n";
-                html += "<tr><th>Data e hora da sessao</th><th>Titulo do Filme</th><th>Diretor</th><th>Ano</th><th>Duração</th><th>Classificação</th><th>Premio</th><th>Género</th><th>Poster</th></tr>\n";
+                html += "<tr><th>Data e hora da sessao</th><th>Titulo do Filme</th><th>Diretor</th><th>Ano</th><th>Duração</th><th>Poster</th></tr>\n";
                 for (var i = 0; i < result.length; i++) {
-                    console.log("os resultados são maiores que 0");
-                    html += "<tr><td>" + result[i].data_hora_sessao + "</td><td>" + result[i].titulo_filme + "</td><td>" + result[i].id_filme + "</td><td>" + result[i].id_sessao + "</td><td>" + result[i].poster_filme + "</td><td>" + result[i].premios_filme + "</td><td>" + result[i].nome_genero + "</td><td><img class='poster_filme' src='recursos/posteres_filmes/" + result[i].poster_filme + "' alt='Poster do filme'></td> <td> <a href='altera_sessao?id_filme=" + result[i].id_filme + "'>&#9998;</a> </td> <td> <a href='confirma_apaga_sessao?id_filme=" + result[i].id_filme + "'>&#10007;</a> </td> </tr>\n";
+                    console.log(result[i]);
+                    html += "<tr><td>" + result[i].data_hora_sessao + "</td><td>" + result[i].titulo_filme + "<td>" + result[i].nome_diretor + "</td>" + "<td>" + result[i].ano_filme + "</td>" + "<td>" + result[i].runtime_filme + " min.</td>" + "</td><td><img class='poster_filme' src='recursos/posteres_filmes/" + result[i].poster_filme + "' alt='Poster do filme'></td>"
+                    html += "<td> <a href='altera_sessao?id_filme=" + result[i].id_filme + "'>&#9998;</a> </td> <td> <a href='confirma_apaga_sessao?id_filme=" + result[i].id_filme + "'>&#10007;</a> </td> </tr>\n";
                 }
                 html += "</table>\n";
                 if (req.session.id_funcionario) {
@@ -1971,11 +2188,17 @@ servidor.get("/sessoes", function (req, res) {
             else {
                 if (req.session.id_funcionario) {
                     html += "<a class='btn_adiciona_sessoes' href='/adiciona_sessao'>Adiciona sessão</a>";
+                } else {
+                    var html = "";
+                    html += head;
+                    html += "<h1>Não foi possivel aceder aos dados das sessões</h1>\n";
+                    html += nao_autenticado;
                 }
-                html += "<h1>Não foi possivel aceder aos dados das sessões</h1>\n";
+
             }
         }
         else {
+            console.log(err);
             html += error_page;
         }
         html += footer;
@@ -1992,6 +2215,7 @@ servidor.get("/adiciona_sessao", function (req, res) {
         footer = fs.readFileSync("public/footer.html", "utf-8");
         error_page = fs.readFileSync("public/error.html", "utf-8");
         script = fs.readFileSync("public/script.html", "utf-8");
+        submit = fs.readFileSync("public/submit.html", "utf-8");
         nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
     }
     catch (error) {
@@ -1999,44 +2223,52 @@ servidor.get("/adiciona_sessao", function (req, res) {
     }
     var html = "";
     html += head;
+    var sessao = req.session.id_funcionario;
+    if (sessao) {
 
-    if (req.session.id_funcionario) {
-
-        var query = "SELECT id_filme, titulo_filme nome_cliente FROM Filmes; SELECT id_sala FROM Salas";
+        var query = "SELECT id_filme, titulo_filme FROM Filmes; SELECT id_sala FROM Salas INNER JOIN Cinemas USING(id_cinema) WHERE id_cinema = (SELECT id_cinema FROM Cinemas INNER JOIN Funcionarios USING(id_cinema) WHERE id_funcionario ='" + sessao + "');";
         if (req.session.id_funcionario) {
             pool.query(query, function (err, result, fields) {
                 var html = "";
                 html += head;
-                html += "<h2>Venda de Bilhete</h2>\n";
+                //html += "<h2>Adiciona sessão</h2>\n";
                 if (!err) {
                     console.log(err);
                     if (result) {
                         console.log(result);
                         html += "<div class='adiciona-filme'>\n";
-                        html += "<form name ='seleciona_cliente' id='seleciona_cliente' action='processa_sessao' method='post'>\n";
+                        html += "<form name ='adiciona_sessao' id='adiciona_sessao' action='processa_adiciona_sessao' method='post'>\n";
                         html += "<table class='table-adiciona-filme'>\n";
                         html += "<tr>\n";
-                        html += "<th>Venda de Bilhete</th>\n";
+                        html += "<th>Adiciona Sessão</th>\n";
                         html += "</tr>\n";
                         html += "<tr>\n";
-                        html += "<td><label>Cliente</label></td>\n";
+                        html += "<td><label>Filme</label></td>\n";
                         html += "</tr>\n";
                         html += "<tr>\n";
                         html += "<td><select name='id_filme' id='id_filme' title='id_filme'>\n";
-                        html += "<option disabled selected value> -- Seleciona um filme -- </option>\n";
+                        html += "<option disabled selected value> -- Seleciona um Filme -- </option>\n";
                         for (var i = 0; i < result[0].length; i++) {
                             html += "<option id='" + result[0][i].id_filme + "' value='" + result[0][i].id_filme + "' name='" + result[0][i].id_filme + "''>" + result[0][i].titulo_filme + "</option>\n";
                         }
                         html += "</select>\n";
+                        html += "<tr><td> <span class='password_alert' id='valida_filme'> </span></td><td></tr>\n";
+                        html += "<tr>";
+                        html += "<tr><td><label>Sala</label></td></tr>"
+                        html += "<td><select name='id_sala' id='id_sala' title='id_sala'>\n";
                         html += "<option disabled selected value> -- Seleciona uma sala -- </option>\n";
                         for (var i = 0; i < result[1].length; i++) {
-                            html += "<option id='" + result[1][i].id_sala + "' value='" + result[1][i].id_sala + "' name='" + result[1][i].id_sala + "''>" + (result[1][i].id_sala - result[1][i].id_sala + i) + "</option>\n";// Utiliza-se: (result[1][i].id_sala - result[1][i].id_sala + i) para que o numero da sala apareça sempre a partir do 1
+                            html += "<option id='" + result[1][i].id_sala + "' value='" + result[1][i].id_sala + "' name='" + result[1][i].id_sala + "''>" + (result[1][i].id_sala - result[1][i].id_sala + i + 1) + "</option>\n";// Utiliza-se: (result[1][i].id_sala - result[1][i].id_sala + i) para que o numero da sala apareça sempre a partir do 1
                         }
                         html += "</select>\n";
-                        html += "<tr><td> <span class='password_alert' id='valida_filme'> </span></td><td> <span class='password_alert' id='valida_sala'> </span></td></tr>\n";
-                        html += "<tr><td>Data de sessão</td><td><input id='data_sessao' title='data de sessão' name='data_sessao' type='date' required></td></tr>\n";
-                        html += "<tr><td>Hora de sessão</td><td><input id='hora_sessao' title='hora de sessão' name='hora_sessao' type='time' required></td></tr>\n";
-                        html += "<td colspan='2'><input type='button' onclick='if (validate_filme() validate_data() validate_hora()) { document.getElementById(\"seleciona_cliente\").submit();}' value='Selecionar cliente'></td>\n";
+                        html += "</tr>";
+                        html += "<tr><td><span class='password_alert' id='valida_sala'> </span></td></tr>\n";
+                        html += "<tr><td>Data de sessão</td><tr><td><input id='data_sessao' title='data de sessão' name='data_sessao' type='date' required></td></tr>\n";
+                        html += "<tr><td><span class='password_alert' id='valida_data'> </span></td></tr>\n";
+                        html += "<tr><td>Hora de sessão</td></tr><tr><td><input id='hora_sessao' title='hora de sessão' name='hora_sessao' type='time' required></td></tr>\n";
+                        html += "<tr><td><span class='password_alert' id='valida_hora'> </span></td></tr>\n";
+
+                        html += submit;
                         html += "</tr>\n";
                         html += "</table>\n";
                         html += "</form>\n";
@@ -2095,11 +2327,12 @@ servidor.post("/processa_adiciona_sessao", urlEncodedParser, function (req, res)
             pool.query(query, function (err, result, fields) {
                 var html = "";
                 html += head;
-                html += "<h2>Venda de Bilhete</h2>\n";
+                html += "<h2>Adiciona sessao</h2>\n";
                 if (!err) {
                     console.log(err);
                     if (result) {
                         console.log(result);
+                        html += "<h2>Sessão adicionada</h2>\n";
 
                     }
                     else {
@@ -2122,7 +2355,6 @@ servidor.post("/processa_adiciona_sessao", urlEncodedParser, function (req, res)
             html += error_page;
             html += "<h2>Erro ao Adicionar Ator</h2>\n";
             html += "<p>Dados incompletos, tenta de novo</p>\n";
-            console.log(req.body);
             html += footer;
             res.send(html);
         }
@@ -2237,7 +2469,7 @@ servidor.post("/processa_adiciona_venda", urlEncodedParser, function (req, res) 
 
     if (req.session.id_funcionario) {
         if (req.body.id_cliente) {
-            var query = "INSERT INTO Vendas VALUES (null, '" + req.session.id_funcionario + "', '" + req.body.id_cliente + "', NOW()); SELECT LAST_INSERT_ID() AS id_venda; SELECT id_filme, titulo_filme FROM Filmes;";
+            var query = "INSERT INTO Vendas VALUES (null, '" + req.session.id_funcionario + "', '" + req.body.id_cliente + "', NOW()); SELECT LAST_INSERT_ID() AS id_venda; SELECT DISTINCT id_filme, titulo_filme FROM Filmes INNER JOIN Sessoes USING(id_filme);";
             //res.send(query);
             console.log(query);
 
@@ -2259,20 +2491,23 @@ servidor.post("/processa_adiciona_venda", urlEncodedParser, function (req, res) 
                         html += "<td><label>Filme</label></td>\n";
                         html += "</tr>\n";
                         html += "<tr>\n";
+
+                        html += "<td><select name='id_filme' id='id_filme' title='id_filme'>\n";
+                        html += "<option disabled selected value> -- Seleciona um filme -- </option>\n";
+                        for (var i = 0; i < result[2].length; i++) {
+                            // html += "<option value='" + result[2][i].id_filme + "' name='" + result[2][i].id_filme + "'>" + result[2][i].nome_filme + "</option>\n";
+                            html += "<option value='" + result[2][i].id_filme + "' name='" + result[2][i].id_filme + "'>" + result[2][i].titulo_filme + "</option>";
+                        }
+                        html += "</select></td>\n";
                         for (var i = 0; i < result[1].length; i++) {
                             html += "<td><input type='hidden' name='id_venda' value='" + result[1][i].id_venda + "'></td>\n";
                         }
-                        html += "<td><select name='id_cliente' id='id_filme' title='id_cliente'>\n";
-                        html += "<option disabled selected value> -- Seleciona um filme -- </option>\n";
-                        for (var i = 0; i < result[2].length; i++) {
-                            html += "<option id='" + result[2][i].id_filme + "' value='" + result[2][i].id_filme + "' name='" + result[2][i].id_filme + "''>" + result[2][i].nome_filme + "</option>\n";
-                        }
-                        html += "</select>\n";
-                        html += "<tr><td> <span class='password_alert' id='valida_cliente'> </span></td></tr>\n"
-                        html += "<td colspan='2'><input type='button' onclick='if (validate_cliente()) { document.getElementById(\"seleciona_cliente\").submit();' value='Selecionar cliente'></td>\n";
+                        html += "<tr><td> <span class='password_alert' id='valida_filme'> </span></td></tr>\n"
+                        html += "<td colspan='2'><input type='button' onclick='if (validate_filme()) { document.getElementById(\"seleciona_filme\").submit();}' value='Selecionar Filme'></td>\n";
                         html += "</tr>\n";
                         html += "</table>\n";
                         html += "</form>\n";
+                        html += "</div>\n";
                         html += script;
                     }
                     else {
@@ -2281,6 +2516,100 @@ servidor.post("/processa_adiciona_venda", urlEncodedParser, function (req, res) 
                 }
                 else {
                     html += error_page;
+                }
+                html += footer;
+                res.send(html);
+            });
+
+
+        }
+        else {
+            var html = "";
+            html += head;
+            html += "<h2>Erro ao Adicionar Ator</h2>\n";
+            html += "<p>Dados incompletos, tenta de novo</p>\n";
+            console.log(req.body);
+            html += footer;
+            res.send(html);
+        }
+    } else {
+        var html = "";
+        html += head;
+        html += nao_autenticado;
+        html += footer;
+        res.send(html);
+    }
+
+});
+
+/*_________________________Terceiro passo de vender um bilhete___________________________*/
+/*________________________________Processa Adiciona Venda________________________________*/
+/*________________________________Processa seleciona filme_______________________________*/
+servidor.post("/processa_seleciona_filme", urlEncodedParser, function (req, res) {
+    try {
+        head = fs.readFileSync("public/head.html", "utf-8");
+        footer = fs.readFileSync("public/footer.html", "utf-8");
+        content = fs.readFileSync("public/home.html", "utf-8");
+        nao_autenticado = fs.readFileSync("public/nao_autenticado.html", "utf-8");
+    }
+    catch (error) {
+        console.error("Erro ao ler os ficheiros head.html e footer.html (ou, pelo menos, um deles)");
+    }
+
+    if (req.session.id_funcionario) {
+        if (req.body.id_filme) {
+            var query = "SELECT * FROM Sessoes INNER JOIN Filmes USING(id_filme) WHERE id_filme= " + req.body.id_filme + ";";
+            //res.send(query);
+            console.log(query);
+
+            pool.query(query, function (err, result, fields) {
+                var html = "";
+                html += head;
+                html += "<h1>Venda de Bilhete</h1>\n";
+                if (!err) {
+                    console.log(err);
+                    if (result) {
+                        console.log(result);
+                        html += "<div class='adiciona-filme'>\n";
+                        html += "<div class='adiciona-filme-item1'>\n";
+
+                        for (var i = 0; i < 1; i++) {
+                            html += "<h2>" + result[i].titulo_filme + "</h2>";
+                            html += "<img class='poster_filme' src='recursos/posteres_filmes/" + result[i].poster_filme + "' alt='Poster do filme'>";
+                        }
+
+                        html += "</div>\n";
+                        html += "<form name ='seleciona_sessao' id='seleciona_sessao' action='processa_seleciona_sessao' method='post'>\n";
+                        html += "<table class='table-adiciona-filme'>\n";
+                        html += "<tr>\n";
+                        html += "</tr>\n";
+                        html += "<tr>\n";
+                        html += "<td><label>Sessão</label></td>\n";
+                        html += "</tr>\n";
+                        html += "<tr>\n";
+                        for (var i = 0; i < result.length; i++) {
+                            const ini = result[i].data_hora_sessao;
+                            let mes = month[ini.getMonth()];
+                            var minuts = String(result[i].data_hora_sessao.getMinutes()).padStart(2, '0');
+                            var hour = String(result[i].data_hora_sessao.getHours()).padStart(2, '0');
+
+                            html += "<tr><td><input type='radio' name='id_sessao' value='" + result[i].id_sessao + "'>" + result[i].data_hora_sessao.getDate() + "/" + mes + "/" + result[i].data_hora_sessao.getFullYear() + "  |  " + hour + "h:" + minuts + "</td><tr>\n";
+                        }
+                        html += "<tr><td> <span class='password_alert' id='valida_sessao'> </span></td></tr>\n"
+                        html += "<td colspan='2'><input type='button' onclick='if (validate_sessao()) { document.getElementById(\"seleciona_sessao\").submit();}' value='Selecionar sessao'></td>\n";
+                        html += "</tr>\n";
+                        html += "</table>\n";
+                        html += "</form>\n";
+                        html += "</div>\n";
+                        html += script;
+                    }
+                    else {
+                        html += "<p>Não foi possivel há sessoes para esse filme</p>\n";
+                    }
+                }
+                else {
+                    html += error_page;
+                    console.log(err);
                 }
                 html += footer;
                 res.send(html);
